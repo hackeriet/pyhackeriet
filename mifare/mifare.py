@@ -13,10 +13,24 @@ MC_DECREMENT = 0xC0
 MC_INCREMENT = 0xC1
 MC_STORE = 0xC2
 
-keyA = bytearray([0xff, 0xff, 0xff, 0xff, 0xff, 0xff])
-keyB = bytearray([0, 0, 0, 0, 0, 0])
-accessBits = bytearray([0xff, 0x07, 0x80, 0x69])
-#
+defaultKeys = [
+    bytearray([0xff, 0xff, 0xff, 0xff, 0xff, 0xff])
+]
+
+keyA = bytearray([0xf0, 0x0f, 0x00, 0xf0, 0x0f, 0x00])
+keyB = bytearray([0xac, 0xab, 0xac, 0xab, 0xac, 0xab])
+
+# Access conditions
+#    3210
+c1=0b0111
+c2=0b1111
+c3=0b1000
+
+byte6=((~c2 & 0xf) << 4)+(~c1 & 0xf)
+byte7=(c1 << 4)+(~c3 & 0xf)
+byte8=(c3 << 4)+(c2)
+accessBits = bytearray([byte6, byte7, byte8, 0b1101001])
+
 
 context = nfc.init()
 pnd = nfc.open(context)
@@ -149,22 +163,22 @@ def read_block(block):
             authenticate(block)
             ret, data = nfc_initiator_mifare_cmd(pnd, MC_READ, block, mp)
             if ret:
-                return(keyA + data[6:10] + keyB)
+                return(data)
         else:
             ret, data = nfc_initiator_mifare_cmd(pnd, MC_READ, block, mp)
             if ret:
                 return(data)
 
-def write_block(block):
+def write_block(block, key_b=False):
     if (is_first_block(block)):
-        authenticate(block)
+        authenticate(block, key_b)
 
     if (is_trailer_block(block)):
         mp = (keyA + accessBits + keyB)
         nfc_initiator_mifare_cmd(pnd, MC_WRITE, block, mp)
     else:
         if (block != 0):
-            mp = bytearray([0xAB]*16)
+            mp = bytearray([0xAA]*16)
             nfc_initiator_mifare_cmd(pnd, MC_WRITE, block, mp)
 
 
@@ -189,7 +203,6 @@ def write_sector(sector):
 print("ready to read")
 
 ui_block_num = 0x3f
-write_sector(2)
 ret = read_sector(2)
 #, pnd, nmMifare, nt)
 
