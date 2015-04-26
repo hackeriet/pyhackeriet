@@ -3,15 +3,7 @@
 
 from __future__ import print_function
 import nfc
-
-MC_AUTH_A = 0x60
-MC_AUTH_B = 0x61
-MC_READ = 0x30
-MC_WRITE = 0xA0
-MC_TRANSFER = 0xB0
-MC_DECREMENT = 0xC0
-MC_INCREMENT = 0xC1
-MC_STORE = 0xC2
+import atexit 
 
 defaultKeys = [
     bytearray([0xff, 0xff, 0xff, 0xff, 0xff, 0xff])
@@ -26,22 +18,32 @@ c1=0b0111
 c2=0b1111
 c3=0b1000
 
-byte6=((~c2 & 0xf) << 4)+(~c1 & 0xf)
-byte7=(c1 << 4)+(~c3 & 0xf)
-byte8=(c3 << 4)+(c2)
-accessBits = bytearray([byte6, byte7, byte8, 0b1101001])
+def compute_access_bits(c1, c2, c3):
+  byte6=((~c2 & 0xf) << 4)+(~c1 & 0xf)
+  byte7=(c1 << 4)+(~c3 & 0xf)
+  byte8=(c3 << 4)+(c2)
+  return(bytearray([byte6, byte7, byte8, 0b1101001]))
 
+accessBits = compute_access_bits(c1, c2, c3)
+
+MC_AUTH_A = 0x60
+MC_AUTH_B = 0x61
+MC_READ = 0x30
+MC_WRITE = 0xA0
+MC_TRANSFER = 0xB0
+MC_DECREMENT = 0xC0
+MC_INCREMENT = 0xC1
+MC_STORE = 0xC2
 
 context = nfc.init()
 pnd = nfc.open(context)
+
 if pnd is None:
-    print('ERROR: Unable to open NFC device.')
-    exit()
+    raise Exception('ERROR: Unable to open NFC device.')
 
 if nfc.initiator_init(pnd) < 0:
     nfc.perror(pnd, "nfc_initiator_init")
-    print('ERROR: Unable to init NFC device.')
-    exit()
+    raise Exception('ERROR: Unable to init NFC device.')
 
 print('NFC reader: %s opened' % nfc.device_get_name(pnd))
 
@@ -89,13 +91,20 @@ def nfc_initiator_mifare_cmd(pnd, mc, block_idx, mp):
         abt_cmd[i] = v
     (ret, data) = nfc.initiator_transceive_bytes(pnd, abt_cmd, 2 + sz_len, abt_rx, -1)
     if ret < 0:
-        raise BaseException("tx failed: %s" % (nfc.strerror(pnd)))
-
-    if mc == MC_READ and ret == 16:
-        print(data[0:16])
-        return (True, data[0:16])
-    else:
+        print("tx failed: %s" % (nfc.strerror(pnd)))
         return (False, [])
+
+    if mc == MC_READ: 
+        if ret == 16:
+            return (True, data[0:16])
+        else:
+            return (False, [])
+
+    return (True, [])
+
+#
+#
+#
 
 def read_card(ui_block_num, pnd, nm_mifare, nt):
     mp = bytearray(0)
@@ -134,57 +143,60 @@ def authenticate(pnd, block_num, nt):
 #
 #
 #
+#
 
-def authenticate(block_num, key_b=False):
-    if (key_b):
-        auth = MC_AUTH_B
-        key = keyB
-    else:
-        auth = MC_AUTH_A
-        key = keyA
+# Try different keys, for writing
+def try_authenticate(block):
+  keys = [(MC_AUTH_B, keyB)] + \
+         [(MC_AUTH_A,k) for k in defaultKeys] + [(MC_AUTH_A, keyA)]
+
+  for key, key_data in keys:
+      print(key, key_data)
+      if authenticate(block, key, key_data):
+          break
+      else: 
+        # reopen
+        ret = nfc.initiator_select_passive_target(pnd, nmMifare, 0, 0, nt)
+
+def authenticate(block_num, key=MC_AUTH_A, key_data=keyA):
     uid = nt.nti.nai.abtUid[0:nt.nti.nai.szUidLen]
-    data = key + uid
-    (res, data) = nfc_initiator_mifare_cmd(pnd, auth, block_num, data)
+    data = key_data + uid
+    (res, data) = nfc_initiator_mifare_cmd(pnd, key, block_num, data)
     if res < 0:
         print(nfc.strerror(pnd))
-    return data
+    return res
 
 def read_sector(sector):
     # sectors > 15 are larger
     s=((sector+1)*4)-1
     res = []
     for block in range(s, s-4, -1):
-        res.insert(0, read_block(block))
-    return b"".join(res)
-
-def read_block(block):
         mp = bytearray(0)
         if is_trailer_block(block):
             authenticate(block)
-            ret, data = nfc_initiator_mifare_cmd(pnd, MC_READ, block, mp)
-            if ret:
-                return(data)
         else:
             ret, data = nfc_initiator_mifare_cmd(pnd, MC_READ, block, mp)
             if ret:
-                return(data)
+                res.insert(0, data)
+    return b"".join(res)
 
-def write_block(block, key_b=False):
-    if (is_first_block(block)):
-        authenticate(block, key_b)
-
-    if (is_trailer_block(block)):
-        mp = (keyA + accessBits + keyB)
-        nfc_initiator_mifare_cmd(pnd, MC_WRITE, block, mp)
-    else:
-        if (block != 0):
-            mp = bytearray([0xAA]*16)
-            nfc_initiator_mifare_cmd(pnd, MC_WRITE, block, mp)
-
-
-def write_sector(sector):
+def write_sector(sector, key_b=False):
     for block in range(sector*4, sector*4+4):
-        write_block(block)
+      if (is_first_block(block)):
+          try_authenticate(block)
+
+      if (is_trailer_block(block)):
+          mp = (keyA + accessBits + keyB)
+          nfc_initiator_mifare_cmd(pnd, MC_WRITE, block, mp)
+      else:
+          if (block != 0):
+              mp = bytearray([0xAA]*16)
+              nfc_initiator_mifare_cmd(pnd, MC_WRITE, block, mp)
+
+@atexit.register
+def close():
+  nfc.close(pnd)
+  nfc.exit(context)
 
 #print('The following (NFC) ISO14443A tag was found:')
 #print('    ATQA (SENS_RES): ', end='')
@@ -200,14 +212,13 @@ def write_sector(sector):
 #    print('          ATS (ATR): ', end='')
 #    nfc.print_hex(nt.nti.nai.abtAts, nt.nti.nai.szAtsLen)
 #
-print("ready to read")
 
-ui_block_num = 0x3f
-ret = read_sector(2)
-#, pnd, nmMifare, nt)
+if __name__ == '__main__':
+  ui_block_num = 0x3f
+  ret = read_sector(2)
+  #, pnd, nmMifare, nt)
 
-with open("dump.bin", "wb") as ous:
-    ous.write(ret)
+  with open("dump.bin", "wb") as ous:
+      ous.write(ret)
 
-nfc.close(pnd)
-nfc.exit(context)
+
