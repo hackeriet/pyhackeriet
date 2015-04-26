@@ -1,0 +1,3 @@
+[submodule "src/nfc-bindings"]
+	path = src/nfc-bindings
+	url = git://github.com/xantares/nfc-bindings.git
