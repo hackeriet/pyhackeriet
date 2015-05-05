@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+import config
+import mifare
+from users.users import Users
+import uuid
+
+users = Users()
+
+if hasattr(config, "keyA"): mifare.keyA = config.keyA
+if hasattr(config, "keyB"): mifare.keyB = config.keyB
+
+def add_user(user, card_data, phone="", email="", address=""):
+    users.add_user(user, phone, email, address)
+    users.update_card_data(user, card_data)
+    #mifare.write_card(card_data)
+
+#TODO real name
+user     = input("Username: ")
+realname = input("Real name: ")
+email    = input("E-mail: ")
+phone    = input("Phone number: ")
+address  = input("Address: ")
+
+print("Hold card to reader and press Enter")
+input()
+
+card_data = uuid.uuid4().bytes
+
+add_user(user, card_data, email, phone, address)

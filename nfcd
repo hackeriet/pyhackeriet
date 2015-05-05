@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+
+import config
+
+if hasattr(config, "keyA"): tut = config.keyA
+
+
