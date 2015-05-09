@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+      <div class="hero-unit">
+        <h2>Hackeriet doorbell</h2>
+        <p>Humla is: <strong>{{ humla }}</strong></p>
+        <p>This page lets you ring the doorbell at Humla when <a href="http://hackeriet.no">Hackeriet</a> is gathering.</p>
+        <p>It makes noise and stuff. Maybe someone will hear it :-)</p>
+        <p>Your presence will also be announced on IRC #oslohackerspace</p>
+        <form action="" method="post">
+            <p>Who are you? (optional)&nbsp;<input type="text" name="person" value=""></p>
+            <p><input class="btn btn-primary btn-large" type="submit" value="Knock &raquo;"></p>
+        </form>
+        <!--em>Knocking currently only announces your presence on the irc channel. No audible bell will sound (cuz xtal soldered the relay to shit).</em-->
+        <!--a class="btn btn-primary btn-large">Ring it &raquo;</a></p-->
+      </div>
+{% endblock %}
+
