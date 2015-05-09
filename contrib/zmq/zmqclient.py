@@ -25,7 +25,7 @@ def sub():
     s.curve_publickey = curve_publickey
     s.curve_secretkey = curve_secretkey
     s.curve_serverkey = curve_serverkey
-    s.connect("tcp://127.0.0.1:5566")
+    s.connect("tcp://mccarthy.microdisko.no:5566")
     return s
 
 def pub():
@@ -33,6 +33,6 @@ def pub():
     s.curve_publickey = curve_publickey
     s.curve_secretkey = curve_secretkey
     s.curve_serverkey = curve_serverkey
-    s.connect("tcp://127.0.0.1:5555")
+    s.connect("tcp://mccarthy.microdisko.no:5555")
     return s
 
