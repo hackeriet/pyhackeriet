@@ -4,11 +4,16 @@ import bottom
 import asyncio
 import zmq
 import zmqclient
+import re
 
-NICK = 'club2mate'
-CHANNEL = '#oslohackerspacetest'
+bottom.unpack._2812_synonyms['TOPIC'] = 'RPL_MYINFO'
+
+NICK = 'club_mate'
+CHANNEL = '#oslohackerspace'
 
 bot = bottom.Client('irc.freenode.net', 6697)
+
+topic = ""
 
 @bot.on('CLIENT_CONNECT')
 def connect():
@@ -22,17 +27,40 @@ def keepalive(message):
 
 @bot.on('PRIVMSG')
 def message(nick, target, message):
+    if nick == NICK:
+        return
     print(nick, target, message)
+
+@bot.on("RPL_TOPIC")
+def test(channel, message):
+    global topic
+    topic = message
+
+@bot.on("RPL_MYINFO")
+def fjas(message, info):
+    bot.send('TOPIC', channel=CHANNEL)
+
+def flip_topic(status):
+    return re.sub(r'(Hackeriet is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
 from threading import Thread
 def run_zmq():
     import zmqclient
     sub = zmqclient.sub()
     sub.setsockopt(zmq.SUBSCRIBE, b"DING")
+    sub.setsockopt(zmq.SUBSCRIBE, b"HUMLA")
     while True:
         s, msg = sub.recv_multipart()
-        print(s)
-        bot.send('NOTICE', target=CHANNEL, message="DING DONG from " + msg.decode('utf-8'))
+        print(s, msg)
+        if s == b"DING":
+            if msg == b"":
+                bot.send('NOTICE', target=CHANNEL, message="DING DONG")
+            else:
+                bot.send('NOTICE', target=CHANNEL, message="DING DONG from " + msg.decode('utf-8'))
+        elif s == b"HUMLA":
+            t = flip_topic(msg.decode('utf-8'))
+            print(t)
+            bot.send('TOPIC', channel=CHANNEL, message=t)
 
 t = Thread(target=run_zmq)
 t.start()
