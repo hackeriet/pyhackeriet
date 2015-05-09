@@ -4,7 +4,7 @@ import pifacedigitalio
 piface = pifacedigitalio.PiFaceDigital() 
 
 def open():
-    piface.output_pins[1].turn_on()
-    time.sleep(0.5)
-    piface.output_pins[1].turn_off()
+    piface.output_pins[0].turn_on()
+    time.sleep(1)
+    piface.output_pins[0].turn_off()
 
