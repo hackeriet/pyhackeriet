@@ -14,6 +14,7 @@ MC_INCREMENT = 0xC1
 MC_STORE = 0xC2
 
 defaultKeys = [
+    bytearray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00]),
     bytearray([0xff, 0xff, 0xff, 0xff, 0xff, 0xff])
 ]
 
@@ -25,27 +26,6 @@ keyB = bytearray([0xac, 0xab, 0xac, 0xab, 0xac, 0xab])
 c1=0b0111
 c2=0b1111
 c3=0b1000
-
-accessBits = compute_access_bits(c1, c2, c3)
-
-context = nfc.init()
-pnd = nfc.open(context)
-
-if pnd is None:
-    raise Exception('ERROR: Unable to open NFC device.')
-
-if nfc.initiator_init(pnd) < 0:
-    nfc.perror(pnd, "nfc_initiator_init")
-    raise Exception('ERROR: Unable to init NFC device.')
-
-print('NFC reader: %s opened' % nfc.device_get_name(pnd))
-
-nmMifare = nfc.modulation()
-nmMifare.nmt = nfc.NMT_ISO14443A
-nmMifare.nbr = nfc.NBR_106
-
-nt = nfc.target()
-ret = nfc.initiator_select_passive_target(pnd, nmMifare, 0, 0, nt)
 
 def compute_access_bits(c1, c2, c3):
     byte6=((~c2 & 0xf) << 4)+(~c1 & 0xf)
@@ -102,39 +82,41 @@ def nfc_initiator_mifare_cmd(pnd, mc, block_idx, mp):
 # Try different keys, for writing
 def try_authenticate(block):
   keys = [(MC_AUTH_B, keyB)] + \
-         [(MC_AUTH_A,k) for k in defaultKeys] + [(MC_AUTH_A, keyA)]
+         [(MC_AUTH_A,k) for k in defaultKeys] + [(MC_AUTH_B,k) for k in defaultKeys] + [(MC_AUTH_A, keyA)]
 
   for key, key_data in keys:
-    print(key, key_data)
-    if authenticate(block, key, key_data):
+    res = authenticate(block, key, key_data)
+    if res:
         break
     else:
-        # reopen
         ret = nfc.initiator_select_passive_target(pnd, nmMifare, 0, 0, nt)
+        print(ret)
+        print("reopen")
 
-def authenticate(block_num, key=MC_AUTH_A, key_data=keyA):
+def authenticate(block_num, key, key_data):
     uid = nt.nti.nai.abtUid[0:nt.nti.nai.szUidLen]
     data = key_data + uid
     (res, data) = nfc_initiator_mifare_cmd(pnd, key, block_num, data)
-    if res < 0:
-        print(nfc.strerror(pnd))
+    if res:
+        return res
+    print(nfc.strerror(pnd))
     return res
 
-def read_sector(sector=11):
+def read_sector(sector):
     # sectors > 15 are larger
     s=((sector+1)*4)-1
     res = []
     for block in range(s, s-4, -1):
         mp = bytearray(0)
         if is_trailer_block(block):
-            authenticate(block)
+            authenticate(block, MC_AUTH_B, keyB)
         else:
             ret, data = nfc_initiator_mifare_cmd(pnd, MC_READ, block, mp)
             if ret:
                 res.insert(0, data)
     return b"".join(res)
 
-def write_sector(data, sector=11, key_b=False):
+def write_sector(data, sector=7, key_b=False):
     n=0
     for block in range(sector*4, sector*4+4):
       if (is_first_block(block)):
@@ -149,9 +131,39 @@ def write_sector(data, sector=11, key_b=False):
             n=n+17
             nfc_initiator_mifare_cmd(pnd, MC_WRITE, block, mp)
 
+def wait_card():
+    while True:
+        ret = nfc.initiator_select_passive_target(pnd, nmMifare, 0, 0, nt)
+        if ret > -1:
+            return ret
+
+def wait_read():
+    wait_card()
+    return(read_sector(7))
+
 @atexit.register
 def close():
   nfc.close(pnd)
   nfc.exit(context)
+
+accessBits = compute_access_bits(c1, c2, c3)
+
+context = nfc.init()
+pnd = nfc.open(context)
+
+if pnd is None:
+    raise Exception('ERROR: Unable to open NFC device.')
+
+if nfc.initiator_init(pnd) < 0:
+    nfc.perror(pnd, "nfc_initiator_init")
+    raise Exception('ERROR: Unable to init NFC device.')
+
+print('NFC reader: %s opened' % nfc.device_get_name(pnd))
+
+nmMifare = nfc.modulation()
+nmMifare.nmt = nfc.NMT_ISO14443A
+nmMifare.nbr = nfc.NBR_106
+
+nt = nfc.target()
 
 

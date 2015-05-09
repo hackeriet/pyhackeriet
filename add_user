@@ -10,12 +10,11 @@ users = Users()
 if hasattr(config, "keyA"): mifare.keyA = config.keyA
 if hasattr(config, "keyB"): mifare.keyB = config.keyB
 
-def add_user(user, card_data, phone="", email="", address=""):
+def add_user(user, card_data, realname="", phone="", email="", address=""):
     users.add_user(user, phone, email, address)
     users.update_card_data(user, card_data)
-    #mifare.write_card(card_data)
+    mifare.write_sector(card_data)
 
-#TODO real name
 user     = input("Username: ")
 realname = input("Real name: ")
 email    = input("E-mail: ")
@@ -27,4 +26,8 @@ input()
 
 card_data = uuid.uuid4().bytes
 
-add_user(user, card_data, email, phone, address)
+add_user(user, card_data, realname, phone, email, address)
+
+print(users.get_card_user(mifare.read_sector(7)[0:16]))
+
+
