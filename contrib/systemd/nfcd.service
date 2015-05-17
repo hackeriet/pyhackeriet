@@ -1,0 +1,15 @@
+[Unit]
+Description=NFC Door Control
+#After=network.target
+
+[Service]
+Type=simple
+User=root
+Environment="LIBNFC_LOG_LEVEL=0"
+ExecStart=/usr/bin/python /opt/nfcd/nfcd 
+WorkingDirectory=/opt/nfcd
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -2,6 +2,7 @@
 import zmqclient
 import zmq
 import pifacedigitalio
+import time
 
 piface = pifacedigitalio.PiFaceDigital() 
 
