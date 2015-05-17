@@ -5,6 +5,7 @@ Description=NFC Door Control
 [Service]
 Type=simple
 User=root
+Environment="LIBNFC_LOG_LEVEL=0"
 ExecStart=/usr/bin/python /opt/nfcd/nfcd 
 WorkingDirectory=/opt/nfcd
 Restart=always

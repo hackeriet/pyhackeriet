@@ -5,6 +5,7 @@ import mifare
 from users.users import Users
 import uuid
 import door
+import sys
 
 users = Users()
 
@@ -14,7 +15,7 @@ if hasattr(config, "keyB"): mifare.keyB = config.keyB
 
 while True:
     user = users.get_card_user(mifare.wait_read()[0:16])
-    print(user)
+    print(user, file=sys.stderr)
     if not user == None:
         door.open()
 
