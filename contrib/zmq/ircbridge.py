@@ -40,9 +40,16 @@ def test(channel, message):
 def fjas(message, info):
     bot.send('TOPIC', channel=CHANNEL)
 
+@bot.on('client_disconnect')
+def reconnect():
+    # Wait a few seconds
+    yield from asyncio.sleep(3)
+    yield from bot.connect()
+
 def flip_topic(status):
     return re.sub(r'(Hackeriet is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
+# FIXME async io
 from threading import Thread
 def run_zmq():
     import zmqclient
