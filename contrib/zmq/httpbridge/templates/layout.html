@@ -22,5 +22,8 @@
     	{% block body %}{% endblock %}
     </div>
   </body>
+  <script>
+      document.getElementsByName("person")[0].value=localStorage.getItem("name")
+  </script>
 </html>
 
