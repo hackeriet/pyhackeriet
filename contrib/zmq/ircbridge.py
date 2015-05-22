@@ -13,6 +13,7 @@ CHANNEL = '#oslohackerspace'
 
 bot = bottom.Client('irc.freenode.net', 6697)
 
+pub = zmqclient.pub()
 topic = ""
 
 @bot.on('CLIENT_CONNECT')
@@ -35,6 +36,8 @@ def message(nick, target, message):
 def test(channel, message):
     global topic
     topic = message
+    pub.send(b"TOPIC", zmq.SNDMORE)
+    pub.send_string(topic)
 
 @bot.on("RPL_MYINFO")
 def fjas(message, info):
@@ -49,10 +52,9 @@ def reconnect():
 def flip_topic(status):
     return re.sub(r'(Hackeriet is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
-# FIXME async io
+# FIXME use async io
 from threading import Thread
 def run_zmq():
-    import zmqclient
     sub = zmqclient.sub()
     sub.setsockopt(zmq.SUBSCRIBE, b"DING")
     sub.setsockopt(zmq.SUBSCRIBE, b"HUMLA")

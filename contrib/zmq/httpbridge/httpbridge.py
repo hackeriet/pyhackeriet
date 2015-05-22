@@ -14,16 +14,24 @@ app = Flask(__name__)
 pub = zmqclient.pub()
 global humla
 humla = "unknown"
+global topic
+topic = "_"
 
 from threading import Thread
 def zmq_listener():
     sub = zmqclient.sub()
     sub.setsockopt(zmq.SUBSCRIBE, b"HUMLA")
+    sub.setsockopt(zmq.SUBSCRIBE, b"TOPIC")
     while True:
-        print("ding")
         s, msg = sub.recv_multipart()
-        global humla
-        humla = msg.decode('utf-8')
+        print(s)
+        print(msg)
+        if s == b"TOPIC":
+            global topic
+            topic = msg.decode('utf-8')
+        else:
+            global humla
+            humla = msg.decode('utf-8')
         print(humla)
 
 t = Thread(target=zmq_listener)
@@ -46,6 +54,10 @@ def gif():
 @app.route("/humla")
 def tut():
     return humla
+
+@app.route("/topic.jsonp")
+def topictut():
+    return "hackerietTopic(" + topic + ")"
 
 @app.route("/", methods=["GET", "POST"])
 def hello():
@@ -70,4 +82,5 @@ def hello():
 
 
 if __name__ == "__main__":
+    app.debug = True
     app.run(port=5001)
