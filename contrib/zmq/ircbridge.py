@@ -50,9 +50,9 @@ def reconnect():
     yield from bot.connect()
 
 def flip_topic(status):
-    return re.sub(r'(Hackeriet is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
+    return re.sub(r'(The space is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
-# FIXME use async io
+# TODO use async io
 from threading import Thread
 def run_zmq():
     sub = zmqclient.sub()
@@ -69,7 +69,8 @@ def run_zmq():
         elif s == b"HUMLA":
             t = flip_topic(msg.decode('utf-8'))
             print(t)
-            bot.send('TOPIC', channel=CHANNEL, message=t)
+            if t != topic:
+                bot.send('TOPIC', channel=CHANNEL, message=t)
 
 t = Thread(target=run_zmq)
 t.start()

@@ -3,5 +3,8 @@ Yet Another Door Control Project Repository
 
 
 ## TODO
-* Keepalive support
+* Hash key data
+* Centralized user database
+* Logging
+* TCP Keepalive for zmqclient?
 

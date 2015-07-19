@@ -57,7 +57,8 @@ def tut():
 
 @app.route("/topic.jsonp")
 def topictut():
-    return "hackerietTopic(" + topic + ")"
+    t = "hackerietTopic(\"" + topic + "\")"
+    return t, 200, {'Content-Type': 'application/javascript'}
 
 @app.route("/", methods=["GET", "POST"])
 def hello():
