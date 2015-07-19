@@ -1,0 +1,8 @@
+#!/usr/bin/python
+
+import imp
+
+door = imp.load_source('door', '/opt/nfcd/door.py')
+
+door.open()
+

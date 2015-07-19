@@ -5,17 +5,38 @@ import mifare
 from users.users import Users
 import uuid
 import door
+import time
 import sys
+import os
 
 users = Users()
 
 if hasattr(config, "keyA"): mifare.keyA = config.keyA
 if hasattr(config, "keyB"): mifare.keyB = config.keyB
 
+print("before fifo")
+path = "/opt/nfcd/nfcd.fifo"
+try:
+    os.mkfifo(path, mode=0o666)
+except:
+    pass
 
+print("after fifo")
+
+fifo = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
+print ("after open")
 while True:
-    user = users.get_card_user(mifare.wait_read()[0:16])
-    print(user, file=sys.stderr)
-    if not user == None:
+    print(".")
+    data = mifare.try_read()
+    if data:
+        user = users.get_card_user(data[0:16])
+        print(user, file=sys.stderr)
+        if not user == None:
+           door.open()
+    print(",")
+    print("READ")
+    if os.read(fifo, 16):
         door.open()
-
+        print("OPEN!")
+    else:
+        print("EMPTY")

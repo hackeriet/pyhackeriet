@@ -19,6 +19,8 @@ while True:
         value = n
         if n == 0:
             send("OPEN")
+            pifacedigital.output_pins[2].turn_on()
         else:
             send("closed")
+            pifacedigital.output_pins[2].turn_off()
     time.sleep(1)
