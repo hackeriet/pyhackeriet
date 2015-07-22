@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import config
-import mifare
-from users.users import Users
+from hackeriet import mifare
+from hackeriet.users.users import Users
 import uuid
 import sys
 

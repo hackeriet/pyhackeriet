@@ -8,8 +8,10 @@ Yet Another Door Control Project Repository
 * Stabilize fridge
 * Connect earthing cables
 * Add 110v cutoff switch
+* New trafo
+* 110v socket
 
-##### Not so important
+##### Not that important
 * Box for electronics
 * Add screen
 * Better cables?
