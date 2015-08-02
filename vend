@@ -6,6 +6,7 @@ while True:
     print("Velg produkt")
     s = vending.select_product()
     print("%d valgt" % s)
-    vending.vend_product(s)
+    if s > -1:
+        vending.vend_product(s)
 
 
