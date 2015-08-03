@@ -7,8 +7,6 @@ Yet Another Door Control Project Repository
 ##### Important
 * Stabilize fridge
 * Connect earthing cables
-* Add 110v cutoff switch
-* New trafo
 * 110v socket
 
 ##### Not that important
@@ -17,10 +15,11 @@ Yet Another Door Control Project Repository
 * Better cables?
 
 #### Control software
+* Add users
 
 ### User web app
 #### Vending specific
-* Add cash
+* Add cash to a user
 * Add Paypal, bitcoin, whatevs to own account
 
 #### Other

@@ -1,11 +1,12 @@
 import RPi.GPIO as GPIO
 import time
 import atexit
-import motor
+import logging
+from hackeriet import motor
 
 GPIO.setmode(GPIO.BCM) # Broadcom PIN numbering
 
-selection_timeout_s = 60
+selection_timeout_s = 10
 motor_off_timeout_s = 120
 motor_pin = 21
 outputs = [5,  6, 13, 19, 26]
@@ -17,8 +18,8 @@ for output in outputs:
 for inpt in inputs:
     GPIO.setup(inpt, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-motor = Motor(motor_pin, motor_off_timeout_s, GPIO)
-motor.start()
+vend_motor = motor.Motor(motor_pin, motor_off_timeout_s)
+vend_motor.start()
 
 @atexit.register
 def cleanup():
@@ -36,14 +37,15 @@ def select_product():
             if GPIO.input(inpt) == GPIO.LOW:
                 selection = inputs.index(inpt)
                 break
-            if time.time() - selection_started > selection_timeout_s:
-                break
+        if time.time() - selection_started > selection_timeout_s:
+            logging.info("Selection timed out.")
+            break
     return selection
 
 def vend_product(o):
     """Vend product
     """
-    motor.on()
+    vend_motor.on()
     GPIO.output(outputs[o], GPIO.LOW)
     time.sleep(1)
     GPIO.output(outputs[o], GPIO.HIGH)
