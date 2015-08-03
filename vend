@@ -1,12 +1,21 @@
 #!/usr/bin/python3
 from hackeriet import vending
+from hackeriet import mifare
+import config
+import logging
+
+logging.basicConfig(filename='vend.log',level=logging.DEBUG,format='%(asctime)-15s %(message)s')
+
+mifare.keyA = config.keyA
+mifare.keyB = config.keyB
 
 while True:
-    input("Dra kort: ")
-    print("Velg produkt")
+  data = mifare.try_read()
+  if data:
+    logging.info("Velg produkt")
     s = vending.select_product()
-    print("%d valgt" % s)
+    logging.info("%d valgt" % s)
     if s > -1:
-        vending.vend_product(s)
+      vending.vend_product(s)
 
 

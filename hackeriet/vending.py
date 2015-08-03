@@ -7,7 +7,7 @@ from hackeriet import motor
 GPIO.setmode(GPIO.BCM) # Broadcom PIN numbering
 
 selection_timeout_s = 10
-motor_off_timeout_s = 120
+motor_off_timeout_s = 30
 motor_pin = 21
 outputs = [5,  6, 13, 19, 26]
 inputs  = [4, 27, 17, 22, 23]

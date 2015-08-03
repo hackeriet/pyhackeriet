@@ -5,14 +5,12 @@ Yet Another Door Control Project Repository
 ### Vending machine
 #### Hardware
 ##### Important
-* Stabilize fridge
-* Connect earthing cables
 * 110v socket
 
 ##### Not that important
+* Usb extension cord
 * Box for electronics
 * Add screen
-* Better cables?
 
 #### Control software
 * Add users
