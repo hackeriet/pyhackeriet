@@ -1,13 +1,15 @@
 #!/usr/bin/python3
 from hackeriet import vending
-from hackeriet import mifare
-import config
 import logging
+import config
+import os
+os.putenv("LIBNFC_LOG_LEVEL", "0")
+from hackeriet import mifare
 
-logging.basicConfig(filename='vend.log',level=logging.DEBUG,format='%(asctime)-15s %(message)s')
+logging.basicConfig(level=logging.DEBUG,format='%(asctime)-15s %(message)s')
 
-mifare.keyA = config.keyA
-mifare.keyB = config.keyB
+if hasattr(config, "keyA"): mifare.keyA = config.keyA
+if hasattr(config, "keyB"): mifare.keyB = config.keyB
 
 while True:
   data = mifare.try_read()
