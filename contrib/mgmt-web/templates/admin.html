@@ -1,0 +1,18 @@
+<h1>L33t hax0rs</h1>
+
+<h2>Add money manually</h2>
+
+<form method='post' action='/brus/admin/add'>
+  <input type='text' name='value' placeholder='value' size=4> kr
+  <input type='text' name='desc' value='Manually added by {{username}}.' size=40>
+  <select name='user'>
+    {% for u in users %}
+    <option value='{{u[0]}}'>{{u[0]}}</option>
+    {%endfor%}
+  </select>
+  <input type='submit'>
+</form>
+
+
+
+

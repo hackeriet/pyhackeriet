@@ -3,16 +3,19 @@
 import config
 from hackeriet import mifare
 from hackeriet.users import Users
-from hackeriet import door
+from hackeriet.doors import Doors
 import uuid
 import time
 import sys
 import os
 
-users = Users()
-
 if hasattr(config, "keyA"): mifare.keyA = config.keyA
 if hasattr(config, "keyB"): mifare.keyB = config.keyB
+if not hasattr(config, "piface"): config.piface = False
+if not hasattr(config, "pin"): config.pin = 5
+
+door = Doors(piface=config.piface,pin=config.pin)
+users = Users()
 
 path = "/opt/nfcd/nfcd.fifo"
 try:

@@ -1,0 +1,40 @@
+<h1>Hei {{username}}!</h1>
+
+<h2>Din saldo er: {{balance}}</h2>
+
+<h2>Bytt passord</h2>
+<form method="post" action="/brus/change-pw">
+  Old password: <input type="text" name="old"><br>
+  New password: <input type="text" name="new"><br>
+  Repeat password: <input type="text" name="new2"><br>
+  <input type="submit">
+</form>
+
+<h2>Fyll på spenn</h2>
+
+<h2>Manuelt fratrekk</h2>
+
+<form method="post" action="/brus/withdraw" onsubmit="return confirm('Er du sikker?')">
+  <input type="text" name="desc" placeholder="Description" size="20">
+  <input type="text" name="value" placeholder="35" size=4> kr
+  <input type="submit">
+</form>
+
+<h2>Transaksjonshistorie</h2>
+
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Timestamp</th>
+    <th>Description</th>
+    <th>Value</th>
+  </tr>
+
+  {% for entry in history %}
+  <tr>
+    {% for v in entry %}
+      <td>{{v}}</td>
+    {%endfor%}
+  </tr>
+  {%endfor%}
+</table>
