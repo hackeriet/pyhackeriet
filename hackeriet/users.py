@@ -28,11 +28,11 @@ class Users:
 
     def update_card_data(self, user, data):
         with self.db:
-            self.db.execute("UPDATE users SET card_data = ? WHERE username = ?", (data, user))
+            self.db.execute("UPDATE users SET card_data = ? WHERE username = ?", (sha256hash(data), user))
         self.db.commit()
 
     def get_card_user(self, data):
-        for row in self.db.execute("SELECT username FROM users WHERE enabled = 1 AND card_data = ?", [data]):
+        for row in self.db.execute("SELECT username FROM users WHERE enabled = 1 AND card_data = ?", [sha256hash(data)]):
             return row[0]
 
     def authenticate(self, user, password):
