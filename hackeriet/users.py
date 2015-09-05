@@ -1,5 +1,9 @@
 import sqlite3
 import hashlib
+import smtplib
+from email.mime.text import MIMEText
+import string
+import random
 
 # TODO
 # Split DB/User, make object oriented
@@ -86,7 +90,28 @@ class Users:
         a = self.db.execute("SELECT tid,timestamp,desc,value FROM transactions, users WHERE transactions.uid=users.uid AND users.username=? ORDER BY tid DESC", [user])
         return a.fetchall()
 
-    # reset_password
+    def reset_password(self, user):
+        email = self.get_email(user)
+        password = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(13))
+        self.set_password(user, password)
+
+        msg = MIMEText('''Hey %s!!!
+
+This is the temporary centralised Hackeriet user database writing to inform you about your new password.
+
+Your password is: %s
+
+Do you like mate???!??!? And hate the kritebok??
+
+Fill account with REAL MONEY and use your access card with the brusautomat: https://microdisko.no/brus/account
+''' % (user, password))
+        msg['Subject'] = "Your Hackeriet password"
+        msg['to'] = email
+        msg['from'] = 'styret@hackeriet.no'
+
+        s = smtplib.SMTP('smtp.powertech.no')
+        s.send_message(msg)
+        s.quit()
 
     def list_users(self):
         return self.db.execute("SELECT username FROM users").fetchall()

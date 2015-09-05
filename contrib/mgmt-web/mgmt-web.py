@@ -1,4 +1,4 @@
-from flask import Flask, request, Response, render_template, g, redirect, url_for
+from flask import Flask, request, Response, render_template, g, redirect, url_for, send_file
 from functools import wraps
 from hackeriet.users import Users
 import stripe
@@ -97,6 +97,11 @@ def admin_add():
     users = get_users()
     users.add_funds(request.form['user'], request.form['value'], request.form['desc'])
     return 'ok'
+
+@app.route("/brus/admin/door.db")
+@requires_admin
+def backup():
+    return send_file("/opt/nfcd/door.db")
 
 @app.route("/brus/charge", methods=['POST'])
 @requires_auth
