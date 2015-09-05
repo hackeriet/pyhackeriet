@@ -3,6 +3,7 @@ from hackeriet import vending
 import logging
 import config
 import os
+from hashlib import sha1
 os.putenv("LIBNFC_LOG_LEVEL", "0")
 from hackeriet import mifare
 
@@ -12,8 +13,10 @@ if hasattr(config, "keyA"): mifare.keyA = config.keyA
 if hasattr(config, "keyB"): mifare.keyB = config.keyB
 
 while True:
-  data = mifare.try_read()
-  if data:
+  vending.ready()
+  user_data = mifare.try_read()
+  if user_data:
+    vending.not_ready()
     logging.info("Velg produkt")
     s = vending.select_product()
     logging.info("%d valgt" % s)
