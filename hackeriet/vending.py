@@ -41,6 +41,11 @@ def ready():
 def not_ready():
     GPIO.output(ready_LED, GPIO.LOW) 
 
+def insufficent_funds():
+    GPIO.output(funds_LED, GPIO.HIGH)
+    time.sleep(1)
+    GPIO.output(funds_LED, GPIO.LOW)
+
 def select_product():
     """Block waiting for user to push a selection button
     """

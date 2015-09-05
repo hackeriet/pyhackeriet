@@ -5,22 +5,39 @@ import config
 import os
 from hashlib import sha1
 os.putenv("LIBNFC_LOG_LEVEL", "0")
-from hackeriet import mifare
+from hackeriet import mifare, users
 
 logging.basicConfig(level=logging.DEBUG,format='%(asctime)-15s %(message)s')
 
 if hasattr(config, "keyA"): mifare.keyA = config.keyA
 if hasattr(config, "keyB"): mifare.keyB = config.keyB
 
+users = users.Users()
+
+products = [(35, 'Voksenbrus'), 
+        (35, 'Voksenbrus'),
+        (35, 'Club-Mate'),
+        (35, 'Club-Mate'),
+        (35, 'Club-Mate')]
+
 while True:
   vending.ready()
   user_data = mifare.try_read()
-  if user_data:
-    vending.not_ready()
-    logging.info("Velg produkt")
-    s = vending.select_product()
-    logging.info("%d valgt" % s)
-    if s > -1:
-      vending.vend_product(s)
+  if user_data != None:
+    user = users.get_card_user(user_data[0:16])
+    if user:
+      vending.not_ready()
+      logging.info("Velg produkt")
+      s = vending.select_product()
+      logging.info("%d valgt" % s)
+      if s > -1:
+        if users.subtract_funds(user, products[s][0], "En " + products[s][1]):
+          vending.vend_product(s)
+        else:
+          vending.insufficent_funds()
+    else:
+      vending.insufficent_funds()
+      logging.info("Unknown user")
+
 
 

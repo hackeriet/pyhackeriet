@@ -1,3 +1,9 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://checkout.stripe.com/checkout.js"></script>
+</head>
+<body>
 <h1>Hei {{username}}!</h1>
 
 <h2>Din saldo er: {{balance}}</h2>
@@ -12,11 +18,16 @@
 
 <h2>Fyll på spenn</h2>
 
+  <form action="/brus/charge" method="post" id="payform">
+    <input type="number" id="amount" placeholder="500"> kr
+    <button id="pay">Pay</button>
+  </form>
+
 <h2>Manuelt fratrekk</h2>
 
 <form method="post" action="/brus/withdraw" onsubmit="return confirm('Er du sikker?')">
   <input type="text" name="desc" placeholder="Description" size="20">
-  <input type="text" name="value" placeholder="35" size=4> kr
+  <input type="number" name="value" placeholder="35" size=4> kr
   <input type="submit">
 </form>
 
@@ -38,3 +49,37 @@
   </tr>
   {%endfor%}
 </table>
+</body>
+<script>
+  var handler = StripeCheckout.configure({
+    key: '{{key}}',
+    image: 'https://s3.amazonaws.com/stripe-uploads/acct_16h6yBFtASXUIgkSmerchant-icon-1441393437689-hackeriet_icon.png',
+    locale: 'auto',
+    token: function(token) {
+      // Use the token to create the charge with a server-side script.
+      // You can access the token ID with `token.id`
+      $("#payform").append($('<input>').attr({ type: 'hidden', name: 'stripeToken', value: token.id }))
+      $("#payform").append($('<input>').attr({ type: 'hidden', name: 'amountt', value: document.getElementById("amount").value*100 }))
+      $("#payform").submit();
+    }
+  });
+
+  $('#pay').on('click', function(e) {
+    // Open Checkout with further options
+    handler.open({
+      name: 'Hackeriet',
+      description: '2 widgets',
+      currency: "NOK",
+      amount: document.getElementById("amount").value*100
+    });
+    e.preventDefault();
+  });
+
+  // Close Checkout on page navigation
+  $(window).on('popstate', function() {
+    handler.close();
+  });
+</script>
+
+
+</html>

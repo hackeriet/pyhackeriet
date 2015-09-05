@@ -15,7 +15,11 @@ class Users:
         self.db.commit()
 
     def sha256hash(self, string):
-        return hashlib.sha256(string.encode()).hexdigest()
+        if type(string) is str:
+            s = string.encode()
+        else:
+            s = string
+        return hashlib.sha256(s).hexdigest()
 
     def add_user(self, name, realname="", phone="", email="", address=""):
         with self.db:
@@ -28,11 +32,11 @@ class Users:
 
     def update_card_data(self, user, data):
         with self.db:
-            self.db.execute("UPDATE users SET card_data = ? WHERE username = ?", (sha256hash(data), user))
+            self.db.execute("UPDATE users SET card_data = ? WHERE username = ?", (self.sha256hash(data), user))
         self.db.commit()
 
     def get_card_user(self, data):
-        for row in self.db.execute("SELECT username FROM users WHERE enabled = 1 AND card_data = ?", [sha256hash(data)]):
+        for row in self.db.execute("SELECT username FROM users WHERE enabled = 1 AND card_data = ?", [self.sha256hash(data)]):
             return row[0]
 
     def authenticate(self, user, password):
@@ -45,13 +49,16 @@ class Users:
             return True
         return False
 
+    def get_email(self, user):
+        return self.db.execute("SELECT email FROM users WHERE username=?", [user]).fetchone()[0]
+
     def set_password(self, user, password):
         self.db.execute("UPDATE users SET password=? WHERE username=?", (self.sha256hash(password), user))
         self.db.commit()
 
     def add_funds(self, user, value, desc=""):
         with self.db:
-            self.db.execute("INSERT INTO transactions (uid,value,desc) SELECT DISTINCT users.uid, ?, ? FROM transactions, users WHERE transactions.uid=users.uid AND username=?", (value, desc, user))
+            self.db.execute("INSERT INTO transactions (uid,value,desc) SELECT DISTINCT users.uid, ?, ? FROM users WHERE username=?", (value, desc, user))
         self.db.commit()
 
     def subtract_funds(self, user, value, desc="", overdraft=False):
@@ -59,7 +66,7 @@ class Users:
             return False
         if not overdraft:
             with self.db:
-                c = self.db.execute("INSERT INTO transactions (uid, value, desc) SELECT DISTINCT users.uid,?,? FROM transactions, users WHERE transactions.uid=users.uid AND users.username=? GROUP BY users.uid HAVING TOTAL(value) >= ?", (-value, desc, user, value))
+                c = self.db.execute("INSERT INTO transactions (uid, value, desc) SELECT DISTINCT users.uid,?,? FROM users, transactions WHERE username=? GROUP BY users.uid HAVING TOTAL(value) >= ?", (-value, desc, user, value))
             self.db.commit()
             if c.rowcount > 0:
                 return True
@@ -67,7 +74,7 @@ class Users:
                 return False
         else:
             with self.db:
-                self.db.execute("INSERT INTO transactions (uid, value, desc) SELECT DISTINCT users.uid,?,? FROM transactions, users WHERE transactions.uid=users.uid AND users.username=?", (-value, desc, user))
+                self.db.execute("INSERT INTO transactions (uid, value, desc) SELECT DISTINCT users.uid,?,? FROM users WHERE users.username=?", (-value, desc, user))
             self.db.commit()
             return True
 
