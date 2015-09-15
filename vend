@@ -27,7 +27,7 @@ while True:
     user = users.get_card_user(user_data[0:16])
     if user:
       vending.not_ready()
-      logging.info("Velg produkt")
+      logging.info(user + ", velg produkt")
       s = vending.select_product()
       logging.info("%d valgt" % s)
       if s > -1:

@@ -10,7 +10,7 @@
 
 <h2>Bytt passord</h2>
 <form method="post" action="/brus/change-pw">
-  Old password: <input type="text" name="old"><br>
+  Old password: <input type="password" name="old"><br>
   New password: <input type="password" name="new"><br>
   Repeat password: <input type="password" name="new2"><br>
   <input type="submit">
@@ -19,7 +19,7 @@
 <h2>Fyll på spenn</h2>
 
   <form action="/brus/charge" method="post" id="payform">
-    <input type="number" id="amount" placeholder="500"> kr
+    <input type="number" id="amount" value="500"> kr
     <button id="pay">Pay</button>
   </form>
 
@@ -68,7 +68,7 @@
     // Open Checkout with further options
     handler.open({
       name: 'Hackeriet',
-      description: '2 widgets',
+      description: 'Brus',
       currency: "NOK",
       amount: document.getElementById("amount").value*100
     });

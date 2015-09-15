@@ -3,6 +3,7 @@ from functools import wraps
 from hackeriet.users import Users
 import stripe
 import os
+import uuid
 
 stripe_keys = {
     'secret_key': os.environ['SECRET_KEY'],
@@ -79,7 +80,7 @@ def change_pw():
 def manual_subtract():
     user=request.authorization.username
     users = get_users()
-    if users.subtract_funds(user, int(request.form['value']), request.form['desc']):
+    if users.subtract_funds(user, int(request.form['value']), request.form['desc'], True):
         return redirect(url_for('account'))
     else:
         return "Insufficient funds"
@@ -97,6 +98,16 @@ def admin_add():
     users = get_users()
     users.add_funds(request.form['user'], request.form['value'], request.form['desc'])
     return 'ok'
+
+@app.route("/brus/admin/add_user", methods=['POST'])
+@requires_admin
+def admin_add_user():
+    users = get_users()
+    users.add_user(request.form['username'], request.form['realname'], request.form['phone'], request.form['email'], request.form['address'])
+    data = uuid.uuid4()
+    users.update_card_data(request.form['username'], data.bytes)
+    #users.reset_password(request.form['username'])
+    return "User %s added with card info: '%s'" % (request.form['username'], data.hex)
 
 @app.route("/brus/admin/door.db")
 @requires_admin

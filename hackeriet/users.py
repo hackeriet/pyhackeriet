@@ -70,7 +70,7 @@ class Users:
             return False
         if not overdraft:
             with self.db:
-                c = self.db.execute("INSERT INTO transactions (uid, value, desc) SELECT DISTINCT users.uid,?,? FROM users, transactions WHERE username=? GROUP BY users.uid HAVING TOTAL(value) >= ?", (-value, desc, user, value))
+                c = self.db.execute("INSERT INTO transactions (uid, value, desc) SELECT DISTINCT users.uid,?,? FROM users, transactions WHERE transactions.uid=users.uid AND username=? GROUP BY users.uid HAVING TOTAL(value) >= ?", (-value, desc, user, value))
             self.db.commit()
             if c.rowcount > 0:
                 return True

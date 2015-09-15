@@ -11,13 +11,17 @@ users = Users()
 if hasattr(config, "keyA"): mifare.keyA = config.keyA
 if hasattr(config, "keyB"): mifare.keyB = config.keyB
 
-d = users.get_card_data(sys.argv[0])
-print(d)
+if sys.argv[1]:
+    d = uuid.UUID(sys.argv[1]).bytes
+else:
+    d = users.get_card_data(sys.argv[0])
+    print(d)
 
 mifare.wait_card()
 mifare.write_sector(d, 7)
 
-print(users.get_card_user(mifare.read_sector(7)[0:16]))
+#print(users.get_card_user(mifare.read_sector(7)[0:16]))
+
 
 
 
