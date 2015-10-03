@@ -109,12 +109,15 @@ Fill account with REAL MONEY and use your access card with the brusautomat: http
         msg['to'] = email
         msg['from'] = 'styret@hackeriet.no'
 
-        s = smtplib.SMTP('smtp.powertech.no')
+        s = smtplib.SMTP('mx.blix.com')
         s.send_message(msg)
         s.quit()
 
     def list_users(self):
         return self.db.execute("SELECT username FROM users").fetchall()
+
+    def get_outgoing_transactions(self):
+        return self.db.execute("select strftime('%s',timestamp),value,desc from transactions where value<0").fetchall()
 
 if __name__ == "__main__":
     users = Users()

@@ -1,9 +1,10 @@
-from flask import Flask, request, Response, render_template, g, redirect, url_for, send_file
+from flask import Flask, request, Response, render_template, g, redirect, url_for, send_file, jsonify
 from functools import wraps
 from hackeriet.users import Users
 import stripe
 import os
 import uuid
+import json
 
 stripe_keys = {
     'secret_key': os.environ['SECRET_KEY'],
@@ -59,6 +60,21 @@ def requires_admin(f):
 def hello():
     return "Goodbye World!"
 
+@app.route("/brus/sales.json")
+def stats():
+    users = get_users()
+    r = []
+    st = users.get_outgoing_transactions()
+    for d in {e for (t,v,e) in st}:
+        if len([t for (t,v,e) in st if e==d]) > 4:
+            r += [{"key": d, "values": [[int(t)*1000,-v] if e==d else [int(t)*1000,0] for (t,v,e) in st]}]
+
+    return json.dumps(r)
+
+@app.route('/brus/')
+def index():
+    return render_template('index.html')
+
 @app.route("/brus/account")
 @requires_auth
 def account():
@@ -106,7 +122,7 @@ def admin_add_user():
     users.add_user(request.form['username'], request.form['realname'], request.form['phone'], request.form['email'], request.form['address'])
     data = uuid.uuid4()
     users.update_card_data(request.form['username'], data.bytes)
-    #users.reset_password(request.form['username'])
+    users.reset_password(request.form['username'])
     return "User %s added with card info: '%s'" % (request.form['username'], data.hex)
 
 @app.route("/brus/admin/door.db")
@@ -140,5 +156,5 @@ def charge():
 
 
 if __name__ == "__main__":
-    app.debug = True
+    app.debug = False
     app.run()
