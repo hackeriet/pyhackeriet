@@ -13,6 +13,7 @@ if not hasattr(config, "piface"): config.piface = False
 if not hasattr(config, "pin"): config.pin = 5
 
 door = Doors(piface=config.piface,pin=config.pin)
+users.load()
 
 while True:
   data = mifare.try_read()
