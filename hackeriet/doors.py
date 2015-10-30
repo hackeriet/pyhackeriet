@@ -7,7 +7,7 @@ GPIO.setmode(GPIO.BCM) # Broadcom PIN numbering
 class Doors():
   def __init__(self, piface=False, pin=5, timeout=1):
     self.timeout = timeout
-    if piface:
+    if self.piface:
       import pifacedigitalio
       self.piface = pifacedigitalio.PiFaceDigital()
     else:
