@@ -17,7 +17,7 @@ door = Doors(piface=config.piface,pin=config.pin)
 while True:
   data = mifare.try_read()
   if data:
-    user = users.get_card_user(data[0:16])
+    user = users.auth(data[0:16])
     if not user == None:
       logging.info(user + " opened the door")
       door.open()
