@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
 import config
-from hackeriet import mifare
-from hackeriet.users import Users
+from hackeriet import mifare, users
 from hackeriet.doors import Doors
-import uuid
-import time
-import sys
-import os
+import uuid, time, sys, os, logging
+
+logging.basicConfig(filename='/opt/nfcd/nfcd.log', level=logging.INFO, format='%(asctime)-15s %(message)s')
 
 if hasattr(config, "keyA"): mifare.keyA = config.keyA
 if hasattr(config, "keyB"): mifare.keyB = config.keyB
@@ -15,22 +13,12 @@ if not hasattr(config, "piface"): config.piface = False
 if not hasattr(config, "pin"): config.pin = 5
 
 door = Doors(piface=config.piface,pin=config.pin)
-users = Users()
-
-path = "/opt/nfcd/nfcd.fifo"
-try:
-    os.mkfifo(path, mode=0o666)
-except:
-    pass
-
-fifo = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
 
 while True:
-    data = mifare.try_read()
-    if data:
-        user = users.get_card_user(data[0:16])
-        print(user, file=sys.stderr)
-        if not user == None:
-           door.open()
-    if os.read(fifo, 16):
-        door.open()
+  data = mifare.try_read()
+  if data:
+    user = users.get_card_user(data[0:16])
+    if not user == None:
+      logging.info(user + " opened the door")
+      door.open()
+
