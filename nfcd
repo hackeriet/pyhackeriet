@@ -5,13 +5,12 @@ from hackeriet import mifare, users
 from hackeriet.doors import Doors
 import uuid, time, sys, os, logging
 
-logging.basicConfig(filename='/opt/nfcd/nfcd.log', level=logging.INFO, format='%(asctime)-15s %(message)s')
-
 if hasattr(config, "keyA"): mifare.keyA = config.keyA
 if hasattr(config, "keyB"): mifare.keyB = config.keyB
 if not hasattr(config, "piface"): config.piface = False
 if not hasattr(config, "pin"): config.pin = 5
 
+logging.basicConfig(filename='/opt/nfcd/nfcd.log', level=logging.INFO, format='%(asctime)-15s %(message)s')
 door = Doors(piface=config.piface,pin=config.pin)
 users.load()
 
@@ -20,6 +19,8 @@ while True:
   if data:
     user = users.auth(data[0:16])
     if not user == None:
-      logging.info(user + " opened the door")
+      sys.stderr.write(user + " opened the door\n")
+      sys.stderr.flush()
+      logging.error(user + " opened the door")
       door.open()
 

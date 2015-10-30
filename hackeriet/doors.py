@@ -20,12 +20,12 @@ class Doors():
       GPIO.cleanup()
 
   def open(self):
-    if piface:
+    if self.piface:
       self.piface.output_pins[0].turn_on()
-      time.sleep(timeout)
+      time.sleep(self.timeout)
       self.piface.output_pins[0].turn_off()
     else:
       GPIO.output(self.pin, GPIO.HIGH)
-      time.sleep(timeout)
+      time.sleep(self.timeout)
       GPIO.output(self.pin, GPIO.LOW)
 
