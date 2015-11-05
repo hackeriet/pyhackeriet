@@ -16,6 +16,10 @@ bot = bottom.Client('irc.freenode.net', 6697)
 pub = zmqclient.pub()
 topic = ""
 
+@bot.on('CLIENT_DISCONNECT')
+def disco():
+     yield from bot.connect()
+     
 @bot.on('CLIENT_CONNECT')
 def connect():
     bot.send('NICK', nick=NICK)
