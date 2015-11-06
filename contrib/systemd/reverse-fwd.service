@@ -1,0 +1,14 @@
+[Unit]
+Description=Phone Home Reverse SSH Service
+ConditionPathExists=|/usr/bin
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/ssh -NTC -o ServerAliveInterval=60 -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa -R 2022:localhost:22 -R 5000:localhost:5000 fwd@simulacron.microdisko.no
+
+# Restart every >2 seconds to avoid StartLimitInterval failure
+RestartSec=3
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

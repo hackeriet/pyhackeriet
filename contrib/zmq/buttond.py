@@ -17,10 +17,10 @@ while True:
     n = pifacedigital.input_pins[0].value
     if n != value:
         value = n
-        if n == 0:
+        if n != 0:
             send("OPEN")
-            pifacedigital.output_pins[2].turn_on()
+            pifacedigital.output_pins[7].turn_on()
         else:
             send("closed")
-            pifacedigital.output_pins[2].turn_off()
+            pifacedigital.output_pins[7].turn_off()
     time.sleep(1)

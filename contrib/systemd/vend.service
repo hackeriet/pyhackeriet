@@ -1,0 +1,14 @@
+[Unit]
+Description=Vending Machine daemon
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 /opt/nfcd/vend 
+WorkingDirectory=/opt/nfcd
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

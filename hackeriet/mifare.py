@@ -139,12 +139,12 @@ def wait_card():
 
 def wait_read():
     wait_card()
-    return(read_sector(7))
+    return(read_sector(7)) # FIXME magic number
 
 def try_read():
     if nfc.initiator_select_passive_target(pnd, nmMifare, 0, 0, nt) > -1:
         return read_sector(7)
-    
+
 @atexit.register
 def close():
   nfc.close(pnd)

@@ -3,6 +3,9 @@ import zmqclient
 import zmq
 import pifacedigitalio
 import time
+import faulthandler
+
+faulthandler.enable() 
 
 piface = pifacedigitalio.PiFaceDigital() 
 
@@ -20,6 +23,7 @@ while True:
         msg = sub.recv_multipart()
         ringBell()        
     except zmq.ZMQError as e:
+        print("ZMQError")
         if e.errno == zmq.ETERM:
             break
         else:
