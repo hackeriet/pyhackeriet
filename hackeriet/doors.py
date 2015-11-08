@@ -11,6 +11,7 @@ class Doors():
       import pifacedigitalio
       self.piface = pifacedigitalio.PiFaceDigital()
     else:
+      self.piface = False
       self.pin = pin
       GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
 

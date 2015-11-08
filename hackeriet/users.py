@@ -10,7 +10,7 @@ def load():
 
 def auth(data):
   token = sha256hash(data)
-  if tokens[token]:
+  if token in tokens:
     return tokens[token]['contactinfo']
 
 def sha256hash(string):
