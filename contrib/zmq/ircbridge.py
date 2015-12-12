@@ -6,6 +6,8 @@ import zmq
 import zmqclient
 import re
 import socket
+from threading import Thread
+import os
 
 bottom.unpack._2812_synonyms['TOPIC'] = 'RPL_MYINFO'
 
@@ -17,6 +19,11 @@ bot = bottom.Client('irc.freenode.net', 6697)
 pub = zmqclient.pub()
 topic = ""
 
+@bot.on('CLIENT_DISCONNECT')
+def disco():
+    os._exit(1)
+    # yield from bot.connect()
+     
 @bot.on('CLIENT_CONNECT')
 def connect():
     bot.send('NICK', nick=NICK)
@@ -54,7 +61,6 @@ def flip_topic(status):
     return re.sub(r'(The space is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
 # TODO use async io
-from threading import Thread
 def run_zmq():
     sub = zmqclient.sub()
     sub.setsockopt(zmq.SUBSCRIBE, b"DING")

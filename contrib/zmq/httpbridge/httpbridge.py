@@ -60,6 +60,11 @@ def topictut():
     t = "hackerietTopic(\"" + topic + "\")"
     return t, 200, {'Content-Type': 'application/javascript'}
 
+@app.route("/door.json")
+def door_json():
+    t = "{ \"status\": \"%s\" }" % humla
+    return t, 200, {'Content-Type': 'application/javascript'}
+
 @app.route("/", methods=["GET", "POST"])
 def hello():
     addr = request.remote_addr
