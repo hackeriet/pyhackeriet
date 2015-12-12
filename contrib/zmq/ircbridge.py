@@ -75,11 +75,11 @@ def run_zmq():
                 m = msg.decode('utf-8')
                 bot.send('NOTICE', target=CHANNEL, message="DING DONG from " + m)
 
-                ip = re.sub('.*\<([^>])>', '\g<1>', m)
+                ip = bytes(re.sub('.*\<([^>])>', '\g<1>', m) + "\n", 'utf-8')
                 sock = socket.create_connection( ("whois.cymru.com",43), 10)
-                sock.sendall(ip + b"\n")
+                sock.sendall(ip)
                 r = sock.recv(4096).decode('utf-8')
-                sock.close
+                sock.close()
                 r = r.splitlines()[1]
                 v = r.strip().split('|')[2]
 
