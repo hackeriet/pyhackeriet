@@ -5,6 +5,7 @@ import asyncio
 import zmq
 import zmqclient
 import re
+import socket
 
 bottom.unpack._2812_synonyms['TOPIC'] = 'RPL_MYINFO'
 
@@ -65,7 +66,18 @@ def run_zmq():
             if msg == b"":
                 bot.send('NOTICE', target=CHANNEL, message="DING DONG")
             else:
-                bot.send('NOTICE', target=CHANNEL, message="DING DONG from " + msg.decode('utf-8'))
+                m = msg.decode('utf-8')
+                bot.send('NOTICE', target=CHANNEL, message="DING DONG from " + m)
+
+                ip = re.sub('.*\<([^>])>', '\g<1>', m)
+                sock = socket.create_connection( ("whois.cymru.com",43), 10)
+                sock.sendall(ip + b"\n")
+                r = sock.recv(4096).decode('utf-8')
+                sock.close
+                r = r.splitlines()[1]
+                v = r.strip().split('|')[2]
+
+                bot.send('NOTICE', target=CHANNEL, message="This ding brought to you by " + v)
         elif s == b"HUMLA":
             t = flip_topic(msg.decode('utf-8'))
             print(t)
