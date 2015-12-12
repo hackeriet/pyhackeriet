@@ -9,9 +9,10 @@ if hasattr(config, "keyA"): mifare.keyA = config.keyA
 if hasattr(config, "keyB"): mifare.keyB = config.keyB
 if not hasattr(config, "piface"): config.piface = False
 if not hasattr(config, "pin"): config.pin = 5
+if not hasattr(config, "timeout"): config.timeout = 1
 
 logging.basicConfig(filename='/opt/nfcd/nfcd.log', level=logging.INFO, format='%(asctime)-15s %(message)s')
-door = Doors(piface=config.piface,pin=config.pin)
+door = Doors(piface=config.piface,pin=config.pin,timeout=config.timeout)
 users.load()
 
 while True:
@@ -21,6 +22,6 @@ while True:
     if not user == None:
       sys.stderr.write(user + " opened the door\n")
       sys.stderr.flush()
-      logging.error(user + " opened the door")
+      logging.error(user.encode('ascii', 'replace').decode('ascii') + " opened the door") 
       door.open()
 
