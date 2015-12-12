@@ -5,6 +5,8 @@ import asyncio
 import zmq
 import zmqclient
 import re
+from threading import Thread
+import os
 
 bottom.unpack._2812_synonyms['TOPIC'] = 'RPL_MYINFO'
 
@@ -18,7 +20,8 @@ topic = ""
 
 @bot.on('CLIENT_DISCONNECT')
 def disco():
-     yield from bot.connect()
+    os._exit(1)
+    # yield from bot.connect()
      
 @bot.on('CLIENT_CONNECT')
 def connect():
@@ -57,7 +60,6 @@ def flip_topic(status):
     return re.sub(r'(The space is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
 # TODO use async io
-from threading import Thread
 def run_zmq():
     sub = zmqclient.sub()
     sub.setsockopt(zmq.SUBSCRIBE, b"DING")
