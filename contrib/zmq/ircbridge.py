@@ -102,7 +102,7 @@ def run_zmq():
             else:
                 m = msg.decode('utf-8')
 
-                who = re.sub('([^<]*).*)', '\g<1>', m)
+                who = re.sub('([^<]*).*', '\g<1>', m)
                 iplist = re.sub('.*<([^>]*)>', '\g<1>', m)
                 ip = iplist.split(',')[-1].strip()
                 reverse, match = reverse_lookup(ip)
