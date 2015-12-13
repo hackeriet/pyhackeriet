@@ -68,13 +68,11 @@ def reverse_lookup(ip):
         for mip in gai:
             if mip[-1][0] == ip:
                 match = mip
-            if not match:
-                reverse = reverse + '(does not match ip!)'
     except (socket.herror):
         reverse = None
     except (socket.gaierror):
         reverse = reverse + '(nxdomain)'
-    return reverse
+    return reverse, match
 
 def whois(ip):
     ip = bytes(" -v " + ip + "\n", 'utf-8')
@@ -104,11 +102,16 @@ def run_zmq():
             else:
                 m = msg.decode('utf-8')
 
+                who = re.sub('([^<]*).*)', '\g<1>', m)
                 iplist = re.sub('.*<([^>]*)>', '\g<1>', m)
                 ip = iplist.split(',')[-1].strip()
-                reverse = reverse_lookup(ip)
+                reverse, match = reverse_lookup(ip)
+                if not reverse:
+                    reverse = ip
+                elif not match:
+                    reverse = ip + ' with invalid reverse ' + reverse
                 asn, ip, prefix, cc, registry, allocated, as_name = whois(ip)
-                bot.send('NOTICE', target=CHANNEL, message="DING DONG from {} ({}, {}, {}) ".format(m, reverse, as_name, cc))
+                bot.send('NOTICE', target=CHANNEL, message="DING DONG from {} ({}, {}) ".format(who, reverse, as_name))
 
         elif s == b"HUMLA":
             t = flip_topic(msg.decode('utf-8'))
