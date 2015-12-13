@@ -67,6 +67,7 @@ def addr_info(iplist):
     sock = socket.create_connection( ("whois.cymru.com",43), 10)
     sock.sendall(ip)
     r = sock.recv(4096).decode('utf-8')
+    sock.close()
     r = r.splitlines()
     v = ['', '', '', '', '', '', '']
 
