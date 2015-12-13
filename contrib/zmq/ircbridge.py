@@ -60,9 +60,23 @@ def reconnect():
 def flip_topic(status):
     return re.sub(r'(The space is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
-def addr_info(iplist):
-    ip = iplist.split(',')[-1].strip()
+def reverse_lookup(ip):
+    try:
+        reverse = socket.gethostbyaddr(ip)[0]
+        gai = socket.getaddrinfo(reverse, None)
+        match = None
+        for mip in gai:
+            if mip[-1][0] == ip:
+                match = mip
+            if not match:
+                reverse = reverse + '(does not match ip!)'
+    except (socket.herror):
+        reverse = None
+    except (socket.gaierror):
+        reverse = reverse + '(nxdomain)'
+    return reverse
 
+def whois(ip):
     ip = bytes(" -v " + ip + "\n", 'utf-8')
     sock = socket.create_connection( ("whois.cymru.com",43), 10)
     sock.sendall(ip)
@@ -91,9 +105,10 @@ def run_zmq():
                 m = msg.decode('utf-8')
 
                 iplist = re.sub('.*<([^>]*)>', '\g<1>', m)
-
-                asn, ip, prefix, cc, registry, allocated, as_name = addr_info(iplist)
-                bot.send('NOTICE', target=CHANNEL, message="DING DONG from {} ({}, {}) ".format(m, as_name, cc))
+                ip = iplist.split(',')[-1].strip()
+                reverse = reverse_lookup(ip)
+                asn, ip, prefix, cc, registry, allocated, as_name = whois(ip)
+                bot.send('NOTICE', target=CHANNEL, message="DING DONG from {} ({}, {}, {}) ".format(m, reverse, as_name, cc))
 
         elif s == b"HUMLA":
             t = flip_topic(msg.decode('utf-8'))
