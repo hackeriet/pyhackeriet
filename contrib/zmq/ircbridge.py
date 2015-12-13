@@ -102,7 +102,7 @@ def run_zmq():
             else:
                 m = msg.decode('utf-8')
 
-                who = re.sub('([^<]*).*', '\g<1>', m)
+                who = re.sub('([^<]*).*', '\g<1>', m).strip()
                 iplist = re.sub('.*<([^>]*)>', '\g<1>', m)
                 ip = iplist.split(',')[-1].strip()
                 reverse, match = reverse_lookup(ip)
@@ -111,7 +111,7 @@ def run_zmq():
                 elif not match:
                     reverse = ip + ' with invalid reverse ' + reverse
                 asn, ip, prefix, cc, registry, allocated, as_name = whois(ip)
-                bot.send('NOTICE', target=CHANNEL, message="DING DONG from {} ({}, {}) ".format(who, reverse, as_name))
+                bot.send('NOTICE', target=CHANNEL, message="DING DONG from {} ({}, {}) ".format(who, reverse, as_name.strip()))
 
         elif s == b"HUMLA":
             t = flip_topic(msg.decode('utf-8'))
