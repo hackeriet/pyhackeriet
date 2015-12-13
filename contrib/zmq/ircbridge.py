@@ -63,15 +63,17 @@ def flip_topic(status):
 def addr_info(iplist):
     ip = iplist.split(',')[-1].strip()
 
-    ip = bytes(ip + "\n", 'utf-8')
+    ip = bytes(" -v " + ip + "\n", 'utf-8')
     sock = socket.create_connection( ("whois.cymru.com",43), 10)
     sock.sendall(ip)
     r = sock.recv(4096).decode('utf-8')
-    r = r.splitlines()[1]
-    v = r.strip().split('|')
+    r = r.splitlines()
+    v = ['', '', '', '', '', '', '']
 
-    return v[2].strip()
+    if len(r) > 1:
+        v = r[1].strip().split('|')
 
+    return v
 
 # TODO use async io
 def run_zmq():
@@ -86,18 +88,11 @@ def run_zmq():
                 bot.send('NOTICE', target=CHANNEL, message="DING DONG")
             else:
                 m = msg.decode('utf-8')
-                bot.send('NOTICE', target=CHANNEL, message="DING DONG from " + m)
 
-                ip = bytes(" -v " + re.sub('.*<([^>]*)>', '\g<1>', m) + "\n", 'utf-8')
-                sock = socket.create_connection( ("whois.cymru.com",43), 10)
-                sock.sendall(ip)
-                r = sock.recv(4096).decode('utf-8')
-                sock.close()
-                lines = r.splitlines()
+                iplist = re.sub('.*<([^>]*)>', '\g<1>', m)
 
-                if len(lines) > 1:
-                    asn, ip, prefix, cc, registry, allocated, as_name = lines[1].strip().split('|')
-                    bot.send('NOTICE', target=CHANNEL, message="This ding brought to you by " + as_name)
+                asn, ip, prefix, cc, registry, allocated, as_name = addr_info(iplist)
+                bot.send('NOTICE', target=CHANNEL, message="DING DONG from {} ({}, {}) ".format(m, as_name, cc))
 
         elif s == b"HUMLA":
             t = flip_topic(msg.decode('utf-8'))
