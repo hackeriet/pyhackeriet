@@ -60,6 +60,19 @@ def reconnect():
 def flip_topic(status):
     return re.sub(r'(The space is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
+def addr_info(iplist):
+    ip = iplist.split(',')[-1].strip()
+
+    ip = bytes(ip + "\n", 'utf-8')
+    sock = socket.create_connection( ("whois.cymru.com",43), 10)
+    sock.sendall(ip)
+    r = sock.recv(4096).decode('utf-8')
+    r = r.splitlines()[1]
+    v = r.strip().split('|')
+
+    return v[2].strip()
+
+
 # TODO use async io
 def run_zmq():
     sub = zmqclient.sub()
@@ -74,16 +87,9 @@ def run_zmq():
             else:
                 m = msg.decode('utf-8')
                 bot.send('NOTICE', target=CHANNEL, message="DING DONG from " + m)
+                iplist = re.sub('.*<([^>]*)>', '\g<1>', m)
+                bot.send('NOTICE', target=CHANNEL, message="This ding brought to you by " + addr_info(iplist))
 
-                ip = bytes(re.sub('.*\<([^>])>', '\g<1>', m) + "\n", 'utf-8')
-                sock = socket.create_connection( ("whois.cymru.com",43), 10)
-                sock.sendall(ip)
-                r = sock.recv(4096).decode('utf-8')
-                sock.close()
-                r = r.splitlines()[1]
-                v = r.strip().split('|')[2]
-
-                bot.send('NOTICE', target=CHANNEL, message="This ding brought to you by " + v)
         elif s == b"HUMLA":
             t = flip_topic(msg.decode('utf-8'))
             print(t)
