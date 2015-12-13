@@ -60,6 +60,19 @@ def reconnect():
 def flip_topic(status):
     return re.sub(r'(The space is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
+def addr_info(iplist):
+    ip = iplist.split(',')[-1].strip()
+
+    ip = bytes(ip + "\n", 'utf-8')
+    sock = socket.create_connection( ("whois.cymru.com",43), 10)
+    sock.sendall(ip)
+    r = sock.recv(4096).decode('utf-8')
+    r = r.splitlines()[1]
+    v = r.strip().split('|')
+
+    return v[2].strip()
+
+
 # TODO use async io
 def run_zmq():
     sub = zmqclient.sub()
