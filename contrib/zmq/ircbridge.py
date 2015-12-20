@@ -61,17 +61,18 @@ def flip_topic(status):
     return re.sub(r'(The space is:) \w*\. \| (.*)', '\g<1> ' + status + '. | \g<2>', topic)
 
 def reverse_lookup(ip):
+    reverse = None
+    match = None
     try:
         reverse = socket.gethostbyaddr(ip)[0]
         gai = socket.getaddrinfo(reverse, None)
-        match = None
         for mip in gai:
             if mip[-1][0] == ip:
                 match = mip
     except (socket.herror):
-        reverse = None
+        return None, None
     except (socket.gaierror):
-        reverse = reverse + '(nxdomain)'
+        return reverse + '(nxdomain)', None
     return reverse, match
 
 def whois(ip):
