@@ -2,16 +2,20 @@
 
 import logging, re, sys, signal, getopt
 import zmq, zmqclient
+import json, http.client
 from matrix_client.client import MatrixClient
+from matrix_client.api import MatrixRequestError
+
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "u:p:d", ["user=", "pass="])
+    opts, args = getopt.getopt(sys.argv[1:], "u:p:g:d", ["user=", "pass=", "github="])
 except getopt.GetoptError as err:
     print(err)
 
 loglvl = logging.INFO
 MATRIX_USER = None
 MATRIX_PASS = None
+GITHUB_TOKEN = ""
 
 for o, a in opts:
     if o == "-d":
@@ -20,13 +24,15 @@ for o, a in opts:
         MATRIX_USER = a
     elif o in ("-p", "--pass="):
         MATRIX_PASS = a
+    elif o in ("-g", "--github="):
+        GITHUB_TOKEN = a
 
 assert MATRIX_USER, "Username required"
 assert MATRIX_PASS, "Password required"
 
 # getopts
 MATRIX_URL = "http://matrix.org"
-MATRIX_ROOM = "#freenode_#oslohackerspace:matrix.org"
+MATRIX_ROOM = "#hackeriet:hackeriet.no"
 MSG_MAX_AGE = 30000
 
 def sigint_handler(signal, frame):
@@ -70,10 +76,12 @@ def zmq_listen():
 def run():
     zmq_setup()
     matrix_setup()
-    humla_event("test")
     while True:
         zmq_listen()
-        client.listen_for_events(1000)
+        try:
+            client.listen_for_events(1000)
+        except MatrixRequestError as e:
+            print(e)
 
 def get_command(msg):
     m = re.search('^!(\w*) ?(.*)?', msg)
@@ -102,9 +110,33 @@ def add_event(trigger, func):
 def notice(msg):
     room.send_text(msg)
 
+# Matrix handler helpers
+
+def create_github_issue(token, title, owner="hackeriet", repo="nfcd", assignee=""):
+  target = "/repos/{}/{}/issues".format(owner, repo)
+  msg = {"title": title, "assignee": assignee}
+  headers = {"User-Agent": "Matrixbot",
+             "Authorization": "token {}".format(token)}
+
+  github = http.client.HTTPSConnection("api.github.com")
+  github.request("POST", target, body=json.dumps(msg), headers=headers)
+  resp = github.getresponse()
+  result = json.loads(resp.read().decode('utf8'))
+
+  if resp.code == 201:
+    return "Issue #{} created: {}".format(result['number'], result['html_url'])
+  else:
+    return "Error: {}".format(result['message'])
+
 # Matrix handlers
-def test_handler(sender, body, c):
-    print("hei")
+def github_handler(sender, content, c):
+    owner = "hackeriet"
+    if not " " in content:
+        return
+    repo, title = content.split(" ", 1)
+    if "/" in repo:
+        owner, repo = repo.split("/", 1)
+    notice(create_github_issue(GITHUB_TOKEN, title, owner, repo))
 
 def zmq_handler(sender, content, c):
     if len(content) < 1:
@@ -112,11 +144,13 @@ def zmq_handler(sender, content, c):
     if not " " in content:
         content += " "
     cmd, rest = content.split(" ", 1)
+    print("zmq send: {} / {} ".format(cmd, rest))
     pub.send(bytes(cmd, "utf-8"), zmq.SNDMORE)
     pub.send_string(rest)
 
-add_command('test', test_handler)
 add_command('zmq', zmq_handler)
+add_command('github', github_handler)
+add_command('g', github_handler)
 
 # ZMQ handlers
 def ding_event(msg):
@@ -127,11 +161,15 @@ def ding_event(msg):
 
 def humla_event(msg):
     room.update_room_topic()
+    print("Topic: " + room.topic)
     if room.topic is None:
         room.topic = ""
     new_topic = re.sub(r'(The space is:) \w*\. \| (.*)', '\g<1> ' + msg + '. | \g<2>', room.topic)
+    print("New Topic: " + new_topic)
     if new_topic != room.topic:
-        client.api.send_message_event(room.room_id, "m.room.topic", {"topic": new_topic})
+        print("update")
+    room.topic = new_topic
+    client.api.send_state_event(room.room_id, "m.room.topic", {"topic": new_topic})
 
 add_event('DING', ding_event)
 add_event('HUMLA', humla_event)
