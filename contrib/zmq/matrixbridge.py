@@ -31,7 +31,7 @@ assert MATRIX_USER, "Username required"
 assert MATRIX_PASS, "Password required"
 
 # getopts
-MATRIX_URL = "http://matrix.org"
+MATRIX_URL = "https://matrix.hackeriet.no:8448"
 MATRIX_ROOM = "#hackeriet:hackeriet.no"
 MSG_MAX_AGE = 30000
 

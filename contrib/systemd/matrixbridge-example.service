@@ -1,0 +1,14 @@
+[Unit]
+Description=Matrix ZMQ bridge
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 /opt/nfcd/contrib/zmq/matrixbridge.py -u username -p password -g github token
+WorkingDirectory=/opt/nfcd/contrib/zmq
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
