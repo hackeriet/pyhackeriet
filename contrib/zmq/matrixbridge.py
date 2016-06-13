@@ -24,7 +24,6 @@ for o, a in opts:
 assert MATRIX_USER, "Username required"
 assert MATRIX_PASS, "Password required"
 
-# getopts
 MATRIX_URL = "http://matrix.org"
 MATRIX_ROOM = "#freenode_#oslohackerspace:matrix.org"
 MSG_MAX_AGE = 30000
