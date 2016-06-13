@@ -148,6 +148,8 @@ def zmq_handler(sender, content, c):
     pub.send_string(rest)
 
 add_command('zmq', zmq_handler)
+add_command('0mq', zmq_handler)
+add_command('zomg', zmq_handler)
 add_command('github', github_handler)
 add_command('g', github_handler)
 
