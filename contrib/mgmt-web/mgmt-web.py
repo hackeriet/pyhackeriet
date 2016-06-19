@@ -1,6 +1,6 @@
 from flask import Flask, request, Response, render_template, g, redirect, url_for, send_file, jsonify
 from functools import wraps
-from hackeriet.users import Users
+from hackeriet import brusdb as users
 import stripe
 import os
 import uuid
@@ -15,24 +15,10 @@ stripe.api_key = stripe_keys['secret_key']
 
 app = Flask(__name__)
 
-def get_users():
-    users = getattr(g, '_users', None)
-    if users is None:
-        users = g._users = Users()
-    return users
-
-@app.teardown_appcontext
-def close_connection(exception):
-    users = getattr(g, '_users', None)
-    if users is not None:
-        users.db.close()
-
 def check_auth(username, password):
-    users = get_users()
     return users.authenticate(username, password)
 
 def check_admin(username, password):
-    users = get_users()
     return users.authenticate_admin(username, password)
 
 def authenticate():
@@ -62,13 +48,11 @@ def hello():
 
 @app.route("/brus/sales.json")
 def stats():
-    users = get_users()
     r = []
-    st = users.get_outgoing_transactions()
-    for d in {e for (t,v,e) in st}:
-        if len([t for (t,v,e) in st if e==d]) > 4:
-            r += [{"key": d, "values": [[int(t)*1000,-v] if e==d else [int(t)*1000,0] for (t,v,e) in st]}]
-
+#    st = users.get_outgoing_transactions()
+#    for d in {e for (t,v,e) in st}:
+#        if len([t for (t,v,e) in st if e==d]) > 4:
+#            r += [{"key": d, "values": [[int(t)*1000,-v] if e==d else [int(t)*1000,0] for (t,v,e) in st]}]
     return json.dumps(r)
 
 @app.route('/brus/')
@@ -78,7 +62,6 @@ def index():
 @app.route("/brus/account")
 @requires_auth
 def account():
-    users = get_users()
     user=request.authorization.username
     return render_template('account.html', username=user, history=users.transaction_history(user), balance=users.balance(user), key=stripe_keys['publishable_key'])
 
@@ -86,7 +69,6 @@ def account():
 def change_pw():
     user=request.authorization.username
     if check_auth(user, request.form['old']) and request.form['new'] == request.form["new2"]:
-        users = get_users()
         users.set_password(user, request.form["new"])
         return "Success"
     else:
@@ -95,7 +77,6 @@ def change_pw():
 @app.route("/brus/withdraw", methods=['POST'])
 def manual_subtract():
     user=request.authorization.username
-    users = get_users()
     if users.subtract_funds(user, int(request.form['value']), request.form['desc'], True):
         return redirect(url_for('account'))
     else:
@@ -105,20 +86,17 @@ def manual_subtract():
 @requires_admin
 def admin():
     user=request.authorization.username
-    users = get_users()
     return render_template('admin.html', username=user, users=users.list_users())
 
 @app.route("/brus/admin/add", methods=['POST'])
 @requires_admin
 def admin_add():
-    users = get_users()
     users.add_funds(request.form['user'], request.form['value'], request.form['desc'])
     return 'ok'
 
 @app.route("/brus/admin/add_user", methods=['POST'])
 @requires_admin
 def admin_add_user():
-    users = get_users()
     users.add_user(request.form['username'], request.form['realname'], request.form['phone'], request.form['email'], request.form['address'])
     data = uuid.uuid4()
     users.update_card_data(request.form['username'], data.bytes)
@@ -135,7 +113,6 @@ def backup():
 def charge():
     # Amount in cents
     amount = request.form['amountt']
-    users = get_users()
     user=request.authorization.username
 
     customer = stripe.Customer.create(
@@ -153,6 +130,48 @@ def charge():
     users.add_funds(user, int(amount)/100, "Transfer with Stripe.")
     
     return render_template('charge.html', amount=int(amount)/100)
+
+
+###
+
+
+#@api_basic_auth
+#def sell(request, machine):
+#response = HttpResponse()
+#
+#if 'product' in request.GET and 'hash' in request.GET:
+#    product = request.GET['product']
+#    userhash = request.GET['hash']
+#    if product == "0":
+#	p = machine.product0
+#    elif product == "1":
+#	p = machine.product1
+#    elif product == "2":
+#	p = machine.product2
+#    elif product == "3":
+#	p = machine.product3
+#    elif product == "4":
+#	p = machine.product4
+
+#    member = Member.objects.get(access_card=userhash)
+#    transactions = Transaction.objects.filter(member=member.user)
+#    balance = transactions.aggregate(balance=models.Sum('value'))['balance']
+#    if balance >= p.price:
+#	t = Transaction(description="%s sold from %s" %
+#				    (p.productname, machine.name),
+#					member=member.user, machine=machine,
+#			value=-p.price)
+#	t.save()
+#	response.write("Sold!")
+ #   else:
+#	response.write("Insufficient funds")
+#	response.status_code = 400
+#else:
+#    response.write("Mind your parameters")
+#    response.status_code = 400
+#return response
+
+
 
 
 if __name__ == "__main__":
