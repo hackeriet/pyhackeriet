@@ -107,7 +107,7 @@ def add_event(trigger, func):
     events.update({trigger: func})
 
 def notice(msg):
-    room.send_text(msg)
+    room.send_notice(msg)
 
 # Matrix handler helpers
 

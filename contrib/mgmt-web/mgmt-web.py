@@ -42,6 +42,16 @@ def requires_admin(f):
         return f(*args, **kwargs)
     return decorated
 
+def machine_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not users.authenticate_machine(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+
 @app.route("/")
 def hello():
     return "Goodbye World!"
@@ -91,7 +101,7 @@ def admin():
 @app.route("/brus/admin/add", methods=['POST'])
 @requires_admin
 def admin_add():
-    users.add_funds(request.form['user'], request.form['value'], request.form['desc'])
+    users.add_funds(request.form['user'], int(request.form['value']), request.form['desc'])
     return 'ok'
 
 @app.route("/brus/admin/add_user", methods=['POST'])
@@ -115,64 +125,40 @@ def charge():
     amount = request.form['amountt']
     user=request.authorization.username
 
-    customer = stripe.Customer.create(
-        email=users.get_email(user),
-        card=request.form['stripeToken']
-    )
+    stripe_id = users.get_stripe_id(user)
+
+    if not stripe_id:
+        customer = stripe.Customer.create(
+            email=users.get_email(user),
+            card=request.form['stripeToken']
+        )
+        stripe_id = customer.id
+        users.set_stripe_id(user, stripe_id)
 
     charge = stripe.Charge.create(
-        customer=customer.id,
+        customer=stripe_id,
         amount=amount,
         currency='NOK',
         description='Hackeriet'
     )
 
     users.add_funds(user, int(amount)/100, "Transfer with Stripe.")
-    
+
     return render_template('charge.html', amount=int(amount)/100)
 
 
-###
+@app.route("/brus/machine/sell")
+@machine_auth
+def sell():
+    mid = request.authorization.username
+    slot = request.args.get("slot", '')
+    card_data = request.args.get("card", '')
 
+    price, desc = users.get_product_price_descr(users.getproduct(mid, slot))
 
-#@api_basic_auth
-#def sell(request, machine):
-#response = HttpResponse()
-#
-#if 'product' in request.GET and 'hash' in request.GET:
-#    product = request.GET['product']
-#    userhash = request.GET['hash']
-#    if product == "0":
-#	p = machine.product0
-#    elif product == "1":
-#	p = machine.product1
-#    elif product == "2":
-#	p = machine.product2
-#    elif product == "3":
-#	p = machine.product3
-#    elif product == "4":
-#	p = machine.product4
-
-#    member = Member.objects.get(access_card=userhash)
-#    transactions = Transaction.objects.filter(member=member.user)
-#    balance = transactions.aggregate(balance=models.Sum('value'))['balance']
-#    if balance >= p.price:
-#	t = Transaction(description="%s sold from %s" %
-#				    (p.productname, machine.name),
-#					member=member.user, machine=machine,
-#			value=-p.price)
-#	t.save()
-#	response.write("Sold!")
- #   else:
-#	response.write("Insufficient funds")
-#	response.status_code = 400
-#else:
-#    response.write("Mind your parameters")
-#    response.status_code = 400
-#return response
-
-
-
+    if users.subtract_funds_card(card_data, price, desc):
+        return Response('Accepted\n',202)
+    return Response('Payment Required\n',402)
 
 if __name__ == "__main__":
     app.debug = False
