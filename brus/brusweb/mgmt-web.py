@@ -54,7 +54,7 @@ def machine_auth(f):
 
 @app.route("/")
 def hello():
-    return "Goodbye World!"
+    return redirect(url_for('index'))
 
 @app.route("/brus/sales.json")
 def stats():
