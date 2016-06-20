@@ -65,9 +65,7 @@ def subtract_funds(user, value, descr="", overdraft=False):
         return False
     if not overdraft:
         r = engine.execute(text("INSERT INTO transactions (uid, value, descr) SELECT DISTINCT users.uid,:nvalue,:descr FROM users, transactions WHERE transactions.uid=users.uid AND username=:user GROUP BY users.uid HAVING SUM(value) >= :value"), nvalue=-value,descr=descr,user=user,value=value)
-        if r.rowcount > 0:
-            return True
-        return False
+        return r.rowcount > 0:
     else:
         engine.execute(text("INSERT INTO transactions (uid, value, descr) SELECT DISTINCT users.uid,:nvalue,:descr FROM users WHERE users.username=:user"), nvalue=-value,descr=descr,user=user)
         return True
@@ -76,9 +74,7 @@ def subtract_funds_card(card, value, descr=""):
   if value < 0:
     return False
   r = engine.execute(text("INSERT INTO transactions (uid, value, descr) SELECT DISTINCT users.uid,:nvalue,:descr FROM users, transactions WHERE transactions.uid=users.uid AND card_data=:cdata GROUP BY users.uid HAVING SUM(value) >= :value"), nvalue=-value,descr=descr,cdata=card,value=value)
-  if r.rowcount > 0:
-    return True
-  return False
+  return r.rowcount > 0:
 
 
 def balance(user):

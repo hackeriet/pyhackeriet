@@ -1,0 +1,53 @@
+#!/usr/bin/python3
+from hackeriet import vending
+import logging
+import config
+import os, time, urllib.request
+from hashlib import sha1
+os.putenv("LIBNFC_LOG_LEVEL", "0")
+from hackeriet import mifare, users
+
+logging.basicConfig(level=logging.DEBUG,format='%(asctime)-15s %(message)s')
+
+if hasattr(config, "keyA"): mifare.keyA = config.keyA
+if hasattr(config, "keyB"): mifare.keyB = config.keyB
+
+BRUS_HOST = "brus.hackeriet.no"
+BRUS_USER = 'brusautomat'
+BRUS_PASS =  config.MACHINE_KEY
+BRUS_PATH = '/brus/machine/sell'
+
+auth_handler = urllib.request.HTTPBasicAuthHandler()
+auth_handler.add_password("hackeriet.no", BRUS_HOST, BRUS_USER, BRUS_PASS)
+opener = urllib.request.build_opener(auth_handler)
+
+def sell(card, slot):
+    requrl = "https://{}/{}?slot={}&card={}".format(BRUS_HOST, BRUS_PATH, slot, card)
+    try:
+        with opener.open(requrl) as r:
+            return r.status == 201
+    except urllib.error.URLError as e:
+        print(e)
+    return False
+
+while True:
+  vending.ready()
+  user_data = mifare.try_read()
+  if user_data != None:
+      user_data = users.sha256hash(user_data)
+      vending.not_ready()
+      logging.info("velg produkt")
+      s = vending.select_product()
+      logging.info("%d valgt" % s)
+      if s > -1:
+        if sell(user_data, s):
+          vending.vend_product(s)
+        else:
+          vending.insufficent_funds()
+  else:
+      vending.not_ready()
+      logging.info("Unknown user")
+      time.sleep(1)
+
+
+
