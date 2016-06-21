@@ -1,6 +1,6 @@
 from flask import Flask, request, Response, render_template, g, redirect, url_for, send_file, jsonify
 from functools import wraps
-from hackeriet import brusdb as users
+import brusdb as users
 import stripe
 import os
 import uuid
