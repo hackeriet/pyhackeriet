@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=root
+Environment=PYTHONPATH=/opt/nfcd:/usr/local/lib/python3.5/site-packages
 ExecStart=/usr/bin/python3 /opt/nfcd/brus/vend 
 WorkingDirectory=/opt/nfcd
 Restart=always

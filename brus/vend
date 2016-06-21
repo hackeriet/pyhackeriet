@@ -18,14 +18,15 @@ BRUS_PASS =  config.MACHINE_KEY
 BRUS_PATH = '/brus/machine/sell'
 
 auth_handler = urllib.request.HTTPBasicAuthHandler()
-auth_handler.add_password("hackeriet.no", BRUS_HOST, BRUS_USER, BRUS_PASS)
+auth_handler.add_password("Hackeriet", BRUS_HOST, BRUS_USER, BRUS_PASS)
 opener = urllib.request.build_opener(auth_handler)
 
 def sell(card, slot):
-    requrl = "https://{}/{}?slot={}&card={}".format(BRUS_HOST, BRUS_PATH, slot, card)
+    requrl = "https://{}{}?slot={}&card={}".format(BRUS_HOST, BRUS_PATH, slot, card)
+    print(requrl)
     try:
         with opener.open(requrl) as r:
-            return r.status == 201
+            return r.status == 202
     except urllib.error.URLError as e:
         print(e)
     return False
@@ -34,8 +35,8 @@ while True:
   vending.ready()
   user_data = mifare.try_read()
   if user_data != None:
-      user_data = users.sha256hash(user_data)
       vending.not_ready()
+      user_data = users.sha256hash(user_data[:16])
       logging.info("velg produkt")
       s = vending.select_product()
       logging.info("%d valgt" % s)
@@ -45,9 +46,7 @@ while True:
         else:
           vending.insufficent_funds()
   else:
-      vending.not_ready()
       logging.info("Unknown user")
-      time.sleep(1)
 
 
 
