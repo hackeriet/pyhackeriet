@@ -172,7 +172,12 @@ def humla_event(msg):
     room.topic = new_topic
     client.api.send_state_event(room.room_id, "m.room.topic", {"topic": new_topic})
 
+def chromecast_event(msg):
+    md = json.loads(msg)
+    notice("Now playing: {} -- {}".format(md['artist'], md['title']))
+
 add_event('DING', ding_event)
 add_event('HUMLA', humla_event)
+add_event('CHROMECAST', chromecast_event)
 
 run()
