@@ -6,7 +6,7 @@ class Listener(object):
 
         self.artist = None
         self.title = None
-        pub = zmqclient.pub()
+        self.pub = zmqclient.pub()
 
     def new_media_status(self, status):
         if status.artist != self.artist or status.title != self.title:
@@ -14,8 +14,11 @@ class Listener(object):
             self.title = status.title
             print("{} -- {}".format(status.artist, status.title))
             if status.artist != None or status.title != None:
-                pub.send(b"CHROMECAST", zmq.SNDMORE)
-                pub.send_json(status.media_metadata)
+                try:
+                    self.pub.send(b"CHROMECAST", 2) # 2 == zmq.SNDMORE FIXME
+                    self.pub.send_json(status.media_metadata)
+                except Exception as e:
+                    print(e)
 
 if __name__ == '__main__':
     import pychromecast, time
