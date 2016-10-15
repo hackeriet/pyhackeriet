@@ -176,8 +176,12 @@ def chromecast_event(msg):
     md = json.loads(msg)
     notice("Now playing: {} -- {}".format(md['artist'], md['title']))
 
+def door_sensor(msg):
+    notice("Door is: {}".format(msg))
+
 add_event('DING', ding_event)
 add_event('HUMLA', humla_event)
 add_event('CHROMECAST', chromecast_event)
+add_event('DOOR_SENSOR', door_sensor_event)
 
 run()
