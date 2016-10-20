@@ -5,8 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=root
-ExecStart=/usr/bin/python3 /opt/nfcd/contrib/zmq/matrixbridge.py -u username -p password -g github token
-WorkingDirectory=/opt/nfcd/contrib/zmq
+ExecStart=/usr/bin/matrixbridge.py -u username -p password -g github token
 Restart=always
 RestartSec=30
 

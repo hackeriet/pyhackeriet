@@ -9,7 +9,7 @@ level=logging.DEBUG
 logging.basicConfig(level=level, format="[%(levelname)s] %(message)s")
 
 base_dir = os.path.dirname(__file__)
-keys_dir = os.path.join(base_dir, '..', '..', 'keys/')
+keys_dir = os.getenv("ZMQ_KEY_DIR", os.path.join(base_dir, 'keys/'))
 private_key = os.path.join(keys_dir, "server.key_secret")
 
 #if not (os.path.exists(private_key)):

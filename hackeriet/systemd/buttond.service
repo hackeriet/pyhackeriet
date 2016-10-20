@@ -1,12 +1,11 @@
 [Unit]
-Description=DING daemon
+Description=Button daemon
 After=network.target
 
 [Service]
 Type=simple
 User=root
-ExecStart=/usr/bin/python /opt/nfcd/contrib/zmq/dingd.py 
-WorkingDirectory=/opt/nfcd/contrib/zmq
+ExecStart=/usr/bin/doordingbuttond
 Restart=always
 RestartSec=30
 

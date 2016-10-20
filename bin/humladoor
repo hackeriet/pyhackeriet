@@ -1,7 +1,8 @@
-import zmqclient
+#!/usr/bin/env python3
 import zmq
 import sys
 import time
+from hackeriet import zmqclient
 
 pub = zmqclient.pub()
 

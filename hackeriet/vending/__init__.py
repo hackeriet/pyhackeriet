@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 import time
 import atexit
 import logging
-from hackeriet import motor
+from hackeriet.vending import motor
 
 GPIO.setmode(GPIO.BCM) # Broadcom PIN numbering
 

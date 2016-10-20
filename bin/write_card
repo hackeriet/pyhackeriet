@@ -24,6 +24,3 @@ mifare.write_sector(d, 7)
 
 #print(users.get_card_user(mifare.read_sector(7)[0:16]))
 
-
-
-

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import logging, re, sys, signal, getopt
-import zmq, zmqclient
+import zmq
+from hackeriet import zmqclient
 import json, http.client
 from matrix_client.client import MatrixClient
 from matrix_client.api import MatrixRequestError
@@ -49,7 +50,7 @@ zmq_poller = zmq.Poller()
 
 commands={}
 events={}
-
+np = ""
 
 def zmq_setup():
     sub.setsockopt(zmq.SUBSCRIBE, b"")
@@ -152,6 +153,7 @@ add_command('0mq', zmq_handler)
 add_command('zomg', zmq_handler)
 add_command('github', github_handler)
 add_command('g', github_handler)
+add_command('np', lambda: notice(np))
 
 # ZMQ handlers
 def ding_event(msg):
@@ -173,11 +175,12 @@ def humla_event(msg):
     client.api.send_state_event(room.room_id, "m.room.topic", {"topic": new_topic})
 
 def chromecast_event(msg):
+    global np;
     md = json.loads(msg)
-    notice("Now playing: {} -- {}".format(md['artist'], md['title']))
+    np = "Now playing: {} -- {}".format(md['artist'], md['title'])
 
 def door_sensor(msg):
-    notice("Door is: {}".format(msg))
+    notice("Door {}".format(msg))
 
 add_event('DING', ding_event)
 add_event('HUMLA', humla_event)

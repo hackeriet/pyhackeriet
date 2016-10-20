@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import config
-from hackeriet import mifare, users
-from hackeriet.doors import Doors
+from hackeriet import mifare
+from hackeriet.door import Doors, users
 import uuid, time, sys, os, logging
 
 if hasattr(config, "keyA"): mifare.keyA = config.keyA
@@ -22,6 +22,6 @@ while True:
     if not user == None:
       sys.stderr.write(user + " opened the door\n")
       sys.stderr.flush()
-      logging.error(user.encode('ascii', 'replace').decode('ascii') + " opened the door") 
+      logging.error(user.encode('ascii', 'replace').decode('ascii') + " opened the door")
       door.open()
 

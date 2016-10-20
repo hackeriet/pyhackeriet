@@ -1,11 +1,17 @@
-import zmqclient
 import zmq
 import pifacedigitalio
 import time
 from syslog import syslog
+import faulthandler
+from hackeriet import zmqclient
+
+faulthandler.enable() 
 
 pub = zmqclient.pub()
 pifacedigital = pifacedigitalio.PiFaceDigital()
+
+sub = zmqclient.sub()
+sub.setsockopt(zmq.SUBSCRIBE, b"DING")
 
 space_status_led_pin = 7
 door_sensor_pin = 3
@@ -42,6 +48,13 @@ def door_event(event):
         door_status = state
         send_event("DOOR_SENSOR", "open" if state == 0 else "closed")
 
+def ringBell():
+    print("ding")
+    pifacedigital.output_pins[1].turn_on()
+    time.sleep(0.5)
+    pifacedigital.output_pins[1].turn_off()
+
+
 listener = pifacedigitalio.InputEventListener(chip=pifacedigital)
 listener.register(door_sensor_pin, pifacedigitalio.IODIR_FALLING_EDGE, door_event)
 listener.register(door_sensor_pin, pifacedigitalio.IODIR_RISING_EDGE, door_event)
@@ -49,4 +62,18 @@ listener.register(door_button_pin, pifacedigitalio.IODIR_FALLING_EDGE, humla_but
 listener.register(door_button_pin, pifacedigitalio.IODIR_RISING_EDGE, humla_button)
 listener.activate()
 print("ok")
+
+while True:
+    try:
+        msg = sub.recv_multipart()
+        ringBell()        
+    except zmq.ZMQError as e:
+        print("ZMQError")
+        if e.errno == zmq.ETERM:
+            break
+        else:
+            raise
+
+ctx.term()
+
 

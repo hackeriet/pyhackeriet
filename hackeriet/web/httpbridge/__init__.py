@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
-sys.path.append('..')
-
 import random
-
 import zmq
-import zmqclient
+from hackeriet import zmqclient
 
 from flask import Flask, render_template, request, redirect
 app = Flask(__name__)
@@ -86,7 +83,9 @@ def hello():
     else:
         return render_template('index.html', humla=humla)
 
+def main():
+    #app.debug = True
+    app.run(port=5001)
 
 if __name__ == "__main__":
-    app.debug = True
-    app.run(port=5001)
+    main()

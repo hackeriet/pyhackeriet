@@ -2,7 +2,7 @@
 
 class Listener(object):
     def __init__(self):
-        import zmqclient
+        from hackeriet import zmqclient
 
         self.artist = None
         self.title = None
