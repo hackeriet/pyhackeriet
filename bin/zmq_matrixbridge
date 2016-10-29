@@ -51,6 +51,7 @@ zmq_poller = zmq.Poller()
 commands={}
 events={}
 np = ""
+humla_open = False
 
 def zmq_setup():
     sub.setsockopt(zmq.SUBSCRIBE, b"")
@@ -163,6 +164,7 @@ def ding_event(msg):
         notice("DING DONG")
 
 def humla_event(msg):
+    global humla_state
     room.update_room_topic()
     print("Topic: " + room.topic)
     if room.topic is None:
@@ -174,13 +176,16 @@ def humla_event(msg):
     room.topic = new_topic
     client.api.send_state_event(room.room_id, "m.room.topic", {"topic": new_topic})
 
+    humla_open = True if msg is "OPEN" else False
+
 def chromecast_event(msg):
-    global np;
+    global np
     md = json.loads(msg)
     np = "Now playing: {} -- {}".format(md['artist'], md['title'])
 
 def door_sensor(msg):
-    notice("Door {}".format(msg))
+    if not humla_open:
+        notice("Door {}".format(msg))
 
 add_event('DING', ding_event)
 add_event('HUMLA', humla_event)
