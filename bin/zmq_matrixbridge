@@ -183,7 +183,7 @@ def chromecast_event(msg):
     md = json.loads(msg)
     np = "Now playing: {} -- {}".format(md['artist'], md['title'])
 
-def door_sensor(msg):
+def door_sensor_event(msg):
     if not humla_open:
         notice("Door {}".format(msg))
 
