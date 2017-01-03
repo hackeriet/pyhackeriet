@@ -11,7 +11,10 @@ setup(
     scripts=["bin/"+a for a in os.listdir("bin")],
     include_package_data=True,
     entry_points = {
-       'console_scripts': ['httpbridge=hackeriet.web.httpbridge:main'] 
+       'console_scripts': [
+                           'httpbridge=hackeriet.web.httpbridge:main',
+                           'chromecast-snoop=hackeriet.chromecast:snoop'
+                          ]
     }
 #    tests_require=['piytest'],
 #    test_suite = 'pytest'
