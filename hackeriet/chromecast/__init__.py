@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 import json
+from hackeriet.mqtt import MQTT
 
 class Listener(object):
     def __init__(self):
-        from hackeriet.mqtt import MQTT
-
         self.artist = None
         self.title = None
         self.mqtt = MQTT()
@@ -17,7 +16,7 @@ class Listener(object):
             print("{} -- {}".format(status.artist, status.title))
             #if status.artist != None or status.title != None:
             print(status.media_metadata)
-            self.mqtt("humla/chromecast", json.dumps(status.media_metadata))
+            self.mqtt("hackeriet/chromecast", json.dumps(status.media_metadata))
 
 def snoop():
     import pychromecast, time
