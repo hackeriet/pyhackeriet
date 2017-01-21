@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import logging, re, sys, signal, getopt
-from hackeriet import mqtt
+from hackeriet.mqtt import MQTT
 import json, http.client
 from matrix_client.client import MatrixClient
 from matrix_client.api import MatrixRequestError
@@ -30,9 +30,11 @@ MATRIX_URL = "https://matrix.hackeriet.no:8448"
 MATRIX_ROOM = "#hackeriet:hackeriet.no"
 MSG_MAX_AGE = 30000
 
+
 def sigint_handler(signal, frame):
     print('Interrupted')
     sys.exit(0)
+
 signal.signal(signal.SIGINT, sigint_handler)
 
 logger = logging.getLogger('matrixbridge')
@@ -55,6 +57,8 @@ def mqtt_event(mosq, obj, msg):
     if msg.topic in events:
         events[msg.topic](msg.payload)
 
+mqtt = MQTT(mqtt_event)
+
 def msg_handler(c):
     logger.debug(c)
     if 'content' in c and 'msgtype' in c['content'] and c['content']['msgtype'] == 'm.text':
@@ -75,7 +79,6 @@ def get_command(msg):
 
 def run():
     mqtt.subscribe("hackeriet/#", 0)
-    mqtt.on_message = mqtt_event
     matrix_setup()
     client.listen_forever()
 

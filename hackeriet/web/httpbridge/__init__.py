@@ -2,7 +2,7 @@
 
 import sys
 import random
-from hackeriet import mqtt
+from hackeriet.mqtt import MQTT
 
 from flask import Flask, render_template, request, redirect
 app = Flask(__name__)
@@ -12,12 +12,14 @@ humla = "unknown"
 global topic
 topic = "_"
 
+mqtt = MQTT()
 mqtt.subscribe("hackeriet/space_state", 0)
 #mqtt.subscribe("hackeriet/topic", 0)
-mqtt.on_message = space_state
 
 def space_state(mosq, obj, msg):
     humla = msg
+
+mqtt.on_message = space_state
 
 @app.after_request
 def add_header(response):

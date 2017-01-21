@@ -1,15 +1,22 @@
+#!/usr/bin/env python3
 import pifacedigitalio
 import time
 from syslog import syslog
 import faulthandler
-from hackeriet import mqtt
+from hackeriet.mqtt import MQTT
 
 faulthandler.enable() 
 
 pifacedigital = pifacedigitalio.PiFaceDigital()
 
+def ringBell(a, b, c):
+    print("ding")
+    pifacedigital.output_pins[1].turn_on()
+    time.sleep(0.5)
+    pifacedigital.output_pins[1].turn_off()
+
+mqtt = MQTT(ringBell)
 mqtt.subscribe("hackeriet/ding", 0)
-mqtt.on_message = ringBell
 
 space_status_led_pin = 7
 door_sensor_pin = 3
@@ -44,12 +51,6 @@ def door_event(event):
     if state != door_status:
         door_status = state
         send_event("hackeriet/door_sensor", "open" if state == 0 else "closed")
-
-def ringBell():
-    print("ding")
-    pifacedigital.output_pins[1].turn_on()
-    time.sleep(0.5)
-    pifacedigital.output_pins[1].turn_off()
 
 
 listener = pifacedigitalio.InputEventListener(chip=pifacedigital)
