@@ -1,0 +1,34 @@
+{
+   "space" : "Hackeriet",
+   "contact" : {
+      "twitter" : "@hackeriet",
+      "facebook" : "https://www.facebook.com/hackeriet",
+      "chat" : "https://vector.im/beta/#/room/!HvLHPoJuDWGcYnQJQB:hackeriet.no",
+      "email" : "styret@__SOPPELPOST__hackeriet.no",
+      "phone" : "+4723964858",
+      "irc" : "irc://freenode/#hackeriet"
+   },
+   "logo" : "https://hackeriet.no/comotion-sjn-transparent-1.2.svg",
+   "url" : "https://hackeriet.no",
+   "issue_report_channels" : [
+      "email",
+      "twitter"
+   ],
+   "state" : {
+      "message" : "The space is {{ humla }}.",
+      "open" : {{ open }},
+      "lastchange" : {{ lastupdate }},
+   },
+   "location" : {
+      "lat" : 59.919293,
+      "lon" : 10.753475,
+      "address" : "Hausmania, Hausmannsgate 34, 0182 Oslo, Norway"
+   },
+   "api" : "0.13",
+   "feeds" : {
+      "blog" : {
+         "type" : "rss",
+         "url" : "http://blog.hackeriet.no/feed.xml"
+      }
+   }
+}

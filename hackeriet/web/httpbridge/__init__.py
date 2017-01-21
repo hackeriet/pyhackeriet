@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-import random
+import random, time
 from hackeriet.mqtt import MQTT
 
 from flask import Flask, render_template, request, redirect
@@ -11,12 +11,14 @@ global humla
 humla = "unknown"
 global topic
 topic = "_"
+lastupdate = int(time.time())
 
 mqtt = MQTT()
 mqtt.subscribe("hackeriet/space_state", 0)
 #mqtt.subscribe("hackeriet/topic", 0)
 
 def space_state(mosq, obj, msg):
+    lastupdate = int(time.time())
     humla = msg.payload.decode()
 
 mqtt.on_message = space_state
@@ -61,11 +63,16 @@ def hello():
         else:
             person = ''
 
-	mqtt("hackeriet/ding", "%s <%s>" % (person, addr))
+        mqtt("hackeriet/ding", "%s <%s>" % (person, addr))
 
         return render_template('knocked.html')
     else:
         return render_template('index.html', humla=humla)
+
+@app.route("/spaceapi.json")
+def spaceapi:
+  open="true" if humla is "OPEN" else "false"
+  return render_template('spaceapi.json', humla=humla, open=open, lastupdate=lastupdate)
 
 def main():
     #app.debug = True
