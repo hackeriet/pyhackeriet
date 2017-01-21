@@ -2,37 +2,22 @@
 
 import sys
 import random
-import zmq
-from hackeriet import zmqclient
+from hackeriet import mqtt
 
 from flask import Flask, render_template, request, redirect
 app = Flask(__name__)
 
-pub = zmqclient.pub()
 global humla
 humla = "unknown"
 global topic
 topic = "_"
 
-from threading import Thread
-def zmq_listener():
-    sub = zmqclient.sub()
-    sub.setsockopt(zmq.SUBSCRIBE, b"HUMLA")
-    sub.setsockopt(zmq.SUBSCRIBE, b"TOPIC")
-    while True:
-        s, msg = sub.recv_multipart()
-        print(s)
-        print(msg)
-        if s == b"TOPIC":
-            global topic
-            topic = msg.decode('utf-8')
-        else:
-            global humla
-            humla = msg.decode('utf-8')
-        print(humla)
+mqtt.subscribe("hackeriet/space_state", 0)
+#mqtt.subscribe("hackeriet/topic", 0)
+mqtt.on_message = space_state
 
-t = Thread(target=zmq_listener)
-t.start()
+def space_state(mosq, obj, msg):
+    humla = msg
 
 @app.after_request
 def add_header(response):
@@ -74,12 +59,9 @@ def hello():
         else:
             person = ''
 
-        
-        pub.send(b"DING", zmq.SNDMORE)
-        pub.send_string("%s <%s>" % (person, addr))
+	mqtt("hackeriet/ding", "%s <%s>" % (person, addr))
 
         return render_template('knocked.html')
-
     else:
         return render_template('index.html', humla=humla)
 

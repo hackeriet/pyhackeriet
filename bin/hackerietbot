@@ -1,22 +1,19 @@
 #!/usr/bin/env python3
 
 import logging, re, sys, signal, getopt
-import zmq
-from hackeriet import zmqclient
+from hackeriet import mqtt
 import json, http.client
 from matrix_client.client import MatrixClient
 from matrix_client.api import MatrixRequestError
 
-
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "u:p:g:d", ["user=", "pass=", "github="])
+    opts, args = getopt.getopt(sys.argv[1:], "u:p:d", ["user=", "pass="])
 except getopt.GetoptError as err:
     print(err)
 
 loglvl = logging.INFO
 MATRIX_USER = None
 MATRIX_PASS = None
-GITHUB_TOKEN = ""
 
 for o, a in opts:
     if o == "-d":
@@ -25,8 +22,6 @@ for o, a in opts:
         MATRIX_USER = a
     elif o in ("-p", "--pass="):
         MATRIX_PASS = a
-    elif o in ("-g", "--github="):
-        GITHUB_TOKEN = a
 
 assert MATRIX_USER, "Username required"
 assert MATRIX_PASS, "Password required"
@@ -44,18 +39,9 @@ logger = logging.getLogger('matrixbridge')
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.setLevel(logging.INFO)
 
-sub = zmqclient.sub()
-pub = zmqclient.pub()
-zmq_poller = zmq.Poller()
-
-commands={}
-events={}
-np = ""
+commands={} # IRC triggers
+events={} # MQTT events
 humla_open = False
-
-def zmq_setup():
-    sub.setsockopt(zmq.SUBSCRIBE, b"")
-    zmq_poller.register(sub, zmq.POLLIN)
 
 def matrix_setup():
     global client, room
@@ -64,31 +50,10 @@ def matrix_setup():
     room = client.join_room(MATRIX_ROOM)
     room.add_listener(msg_handler)
 
-def zmq_listen():
-    evts = dict(zmq_poller.poll(1000))
-    for e in evts:
-        s, msg = e.recv_multipart() # FIXME check for non-multipart messages
-        s = s.decode('utf-8')
-        msg = msg.decode('utf-8')
-        logger.info('ZMQ: {} {}'.format(s, msg))
-        if s in events:
-            events[s](msg)
-
-def run():
-    zmq_setup()
-    matrix_setup()
-    while True:
-        zmq_listen()
-        try:
-            client.listen_for_events(1000)
-        except MatrixRequestError as e:
-            print(e)
-
-def get_command(msg):
-    m = re.search('^!(\w*) ?(.*)?', msg)
-    if m:
-        return m.groups()
-    return ('', '')
+def mqtt_event(mosq, obj, msg):
+    logger.info('MQTT: {} {}'.format(msg.topic, msg.payload))
+    if msg.topic in events:
+        events[msg.topic](msg.payload)
 
 def msg_handler(c):
     logger.debug(c)
@@ -102,6 +67,18 @@ def msg_handler(c):
         if cmd and cmd in commands:
             commands[cmd](sender, content, c)
 
+def get_command(msg):
+    m = re.search('^!(\w*) ?(.*)?', msg)
+    if m:
+        return m.groups()
+    return ('', '')
+
+def run():
+    mqtt.subscribe("hackeriet/#", 0)
+    mqtt.on_message = mqtt_event
+    matrix_setup()
+    client.listen_forever()
+
 def add_command(trigger, func):
     commands.update({trigger: func})
 
@@ -113,55 +90,24 @@ def notice(msg):
 
 # Matrix handler helpers
 
-def create_github_issue(token, title, owner="hackeriet", repo="nfcd", assignee=""):
-  target = "/repos/{}/{}/issues".format(owner, repo)
-  msg = {"title": title, "assignee": assignee}
-  headers = {"User-Agent": "Matrixbot",
-             "Authorization": "token {}".format(token)}
-
-  github = http.client.HTTPSConnection("api.github.com")
-  github.request("POST", target, body=json.dumps(msg), headers=headers)
-  resp = github.getresponse()
-  result = json.loads(resp.read().decode('utf8'))
-
-  if resp.code == 201:
-    return "Issue #{} created: {}".format(result['number'], result['html_url'])
-  else:
-    return "Error: {}".format(result['message'])
-
-# Matrix handlers
-def github_handler(sender, content, c):
-    owner = "hackeriet"
-    if not " " in content:
-        return
-    repo, title = content.split(" ", 1)
-    if "/" in repo:
-        owner, repo = repo.split("/", 1)
-    notice(create_github_issue(GITHUB_TOKEN, title, owner, repo))
-
-def zmq_handler(sender, content, c):
+def mqtt_send(sender, content, c):
     if len(content) < 1:
         return
     if not " " in content:
         content += " "
     cmd, rest = content.split(" ", 1)
-    print("zmq send: {} / {} ".format(cmd, rest))
-    pub.send(bytes(cmd, "utf-8"), zmq.SNDMORE)
-    pub.send_string(rest)
+    print("mqtt send: {} / {} ".format(cmd, rest))
+    mqtt(cmd, rest)
 
-add_command('zmq', zmq_handler)
-add_command('0mq', zmq_handler)
-add_command('zomg', zmq_handler)
-add_command('github', github_handler)
-add_command('g', github_handler)
-add_command('np', lambda: notice(np))
+add_command('mqtt', mqtt_send)
 
-# ZMQ handlers
+# MQTT handlers
 def ding_event(msg):
     if msg:
         notice("DING DONG from {}".format(msg))
     else:
         notice("DING DONG")
+add_event('hackeriet/ding', ding_event)
 
 def humla_event(msg):
     global humla_state
@@ -177,19 +123,12 @@ def humla_event(msg):
     client.api.send_state_event(room.room_id, "m.room.topic", {"topic": new_topic})
 
     humla_open = True if msg is "OPEN" else False
-
-def chromecast_event(msg):
-    global np
-    md = json.loads(msg)
-    np = "Now playing: {} -- {}".format(md['artist'], md['title'])
+add_event('hackeriet/space_state', humla_event)
 
 def door_sensor_event(msg):
     if not humla_open:
         notice("Door {}".format(msg))
+add_event('hackeriet/door_sensor', door_sensor_event)
 
-add_event('DING', ding_event)
-add_event('HUMLA', humla_event)
-add_event('CHROMECAST', chromecast_event)
-add_event('DOOR_SENSOR', door_sensor_event)
 
 run()

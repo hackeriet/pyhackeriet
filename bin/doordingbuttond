@@ -1,17 +1,15 @@
-import zmq
 import pifacedigitalio
 import time
 from syslog import syslog
 import faulthandler
-from hackeriet import zmqclient
+from hackeriet import mqtt
 
 faulthandler.enable() 
 
-pub = zmqclient.pub()
 pifacedigital = pifacedigitalio.PiFaceDigital()
 
-sub = zmqclient.sub()
-sub.setsockopt(zmq.SUBSCRIBE, b"DING")
+mqtt.subscribe("hackeriet/ding", 0)
+mqtt.on_message = ringBell
 
 space_status_led_pin = 7
 door_sensor_pin = 3
@@ -25,12 +23,11 @@ door_sensor = pifacedigital.input_pins[door_sensor_pin]
 
 def send_event(name, value):
     print("Event {}: {}".format(name, value))
-    pub.send(name.encode("ascii"), zmq.SNDMORE)
-    pub.send_string(value)
+    mqtt(name, value)
 
 def set_humla_status(s):
     humla_status = s
-    send_event("HUMLA", s)
+    send_event("hackeriet/space_state", s)
 
 def humla_button(event):
     value = door_button.value
@@ -46,7 +43,7 @@ def door_event(event):
     state = door_sensor.value
     if state != door_status:
         door_status = state
-        send_event("DOOR_SENSOR", "open" if state == 0 else "closed")
+        send_event("hackeriet/door_sensor", "open" if state == 0 else "closed")
 
 def ringBell():
     print("ding")
@@ -64,16 +61,6 @@ listener.activate()
 print("ok")
 
 while True:
-    try:
-        msg = sub.recv_multipart()
-        ringBell()        
-    except zmq.ZMQError as e:
-        print("ZMQError")
-        if e.errno == zmq.ETERM:
-            break
-        else:
-            raise
-
-ctx.term()
+    time.sleep(30)
 
 

@@ -23,7 +23,7 @@ def snoop():
 
     cast = pychromecast.get_chromecast()
     if cast is None: # shrug emoji
-        cast = pychromecast.Chromecast("10.10.3.89")
+        cast = pychromecast.Chromecast("192.168.100.2")
     cast.wait()
     print("Connected to {}".format(cast.device.friendly_name))
     cast.media_controller.register_status_listener(Listener())
