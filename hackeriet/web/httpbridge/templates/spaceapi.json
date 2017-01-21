@@ -17,7 +17,7 @@
    "state" : {
       "message" : "The space is {{ humla }}.",
       "open" : {{ open }},
-      "lastchange" : {{ lastupdate }},
+      "lastchange" : {{ lastupdate }}
    },
    "location" : {
       "lat" : 59.919293,
