@@ -26,8 +26,8 @@ for o, a in opts:
 assert MATRIX_USER, "Username required"
 assert MATRIX_PASS, "Password required"
 
-MATRIX_URL = "https://matrix.hackeriet.no:8448"
-MATRIX_ROOM = "#hackeriet:hackeriet.no"
+MATRIX_URL = "https://matrix.org:8448"
+MATRIX_ROOM = "#hackeriet:matrix.org"
 MSG_MAX_AGE = 30000
 
 
@@ -55,15 +55,13 @@ def matrix_setup():
 def mqtt_event(mosq, obj, msg):
     logger.info('MQTT: {} {}'.format(msg.topic, msg.payload))
     if msg.topic in events:
-        events[msg.topic](msg.payload)
+        events[msg.topic](msg.payload.decode())
 
 mqtt = MQTT(mqtt_event)
 
-def msg_handler(c):
+def msg_handler(r, c):
     logger.debug(c)
     if 'content' in c and 'msgtype' in c['content'] and c['content']['msgtype'] == 'm.text':
-        if c['age'] > MSG_MAX_AGE:
-            return
         sender = c['sender']
         body = c['content']['body']
         logger.info('{}: {}'.format(sender, body))
