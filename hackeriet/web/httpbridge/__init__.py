@@ -70,7 +70,7 @@ def hello():
         return render_template('index.html', humla=humla)
 
 @app.route("/spaceapi.json")
-def spaceapi:
+def spaceapi():
   open="true" if humla is "OPEN" else "false"
   return render_template('spaceapi.json', humla=humla, open=open, lastupdate=lastupdate)
 
