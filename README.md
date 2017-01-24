@@ -2,9 +2,15 @@
 
 This package contains tools to open doors and dispense sodas at Hackeriet.
 
+# Installing
+
+pip3 install git+https://github.com/hackeriet/pyhackeriet.git --upgrade
 
 # Creating a new user
 ## Create user in hula
+
+https://hackeriet.no/hula
+
 ## Create a card
 
 On the machine with the card reader put a blank card on the reader and, as root, run:
@@ -26,7 +32,7 @@ Copy the card hash to the "Access card" field.
 
 ## Update databases
 
-The doors automatically downloads card data every <never> minutes.
+The doors automatically downloads card data every 60 minutes.
 
 For brus, see the psql log on brus.hackeriet.no -- or fix the integration.
  

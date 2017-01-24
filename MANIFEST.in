@@ -1,5 +1,4 @@
 include README.md
-include hackeriet/keys/server.key
 graft hackeriet/web/httpbridge/static
 graft hackeriet/web/httpbridge/templates
 graft hackeriet/systemd
