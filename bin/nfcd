@@ -1,23 +1,23 @@
 #!/usr/bin/env python
-import sys
-sys.path.append("/opt/nfcd") # FIXME
-
-import config
 from hackeriet import mifare
+from hackeriet.mqtt import MQTT
 from hackeriet.door import Doors, users
 import uuid, time, sys, os, logging
 
-if hasattr(config, "keyA"): mifare.keyA = config.keyA
-if hasattr(config, "keyB"): mifare.keyB = config.keyB
-if not hasattr(config, "piface"): config.piface = False
-if not hasattr(config, "pin"): config.pin = 5
-if not hasattr(config, "timeout"): config.timeout = 1
+piface = False
+if hasattr(os.environ, "PIFACE"): piface = True
+pin = int(os.getenv("DOOR_PIN", 5))
+timeout = int(os.getenv("DOOR_TIMEOUT", 1))
 
-logging.basicConfig(filename='/opt/nfcd/nfcd.log', level=logging.INFO, format='%(asctime)-15s %(message)s')
-door = Doors(piface=config.piface,pin=config.pin,timeout=config.timeout)
-users.load()
+#logging.basicConfig(filename='/opt/nfcd/nfcd.log', level=logging.INFO, format='%(asctime)-15s %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)-15s %(message)s')
+
+door = Doors(piface=piface,pin=pin,timeout=timeout)
+
+mqtt = MQTT()
 
 while True:
+  users.load()
   data = mifare.try_read()
   if data:
     user = users.auth(data[0:16])
@@ -26,4 +26,5 @@ while True:
       sys.stderr.flush()
       logging.error(user.encode('ascii', 'replace').decode('ascii') + " opened the door")
       door.open()
+      mqtt("hackeriet/door/hackeriet/open", user)
 

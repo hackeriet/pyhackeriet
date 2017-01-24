@@ -1,7 +1,7 @@
 import hashlib, json
 
 tokens = {}
-dooraccess = "/opt/nfcd/dooraccess"
+dooraccess = "/var/run/dooraccess"
 
 def load():
   global tokens
