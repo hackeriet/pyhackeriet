@@ -111,7 +111,7 @@ def ding_event(msg):
 add_event('hackeriet/ding', ding_event)
 
 def humla_event(msg):
-    global humla_state
+    global humla_state, humla_open
     room.update_room_topic()
     print("Topic: " + room.topic)
     if room.topic is None:
@@ -123,7 +123,7 @@ def humla_event(msg):
     room.topic = new_topic
     client.api.send_state_event(room.room_id, "m.room.topic", {"topic": new_topic})
 
-    humla_open = True if msg is "OPEN" else False
+    humla_open = True if msg == "OPEN" else False
 add_event('hackeriet/space_state', humla_event)
 
 def door_sensor_event(msg):

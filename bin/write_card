@@ -1,26 +1,19 @@
 #!/usr/bin/env python
 
-import config
+import uuid, sys, hashlib
 from hackeriet import mifare
-import uuid
-import sys
 
+mifare.keyA = os.getenv("MIFARE_KEY_A")
+mifare.keyB = os.getenv("MIFARE_KEY_B")
 
-if hasattr(config, "keyA"): mifare.keyA = config.keyA
-if hasattr(config, "keyB"): mifare.keyB = config.keyB
-
-if sys.argv[1]:
-    d = uuid.UUID(sys.argv[1]).bytes
-else:
-    from hackeriet.users.users import Users
-    users = Users()
-    d = users.get_card_data(sys.argv[0])
-    print(d)
+d = uuid.uuid4()
 
 printf("Waiting for card")
 mifare.wait_card()
 printf("Writing card ...")
 mifare.write_sector(d, 7)
 
-#print(users.get_card_user(mifare.read_sector(7)[0:16]))
+print("Hash: " + hashlib.sha256(d.bytes).hexdigest())
+print("Wrote: " + str(d.bytes))
+#print("Read: " + mifare.read_sector(7)[0:16])
 
