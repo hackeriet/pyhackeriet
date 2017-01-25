@@ -8,7 +8,7 @@ pip3 install git+https://github.com/hackeriet/pyhackeriet.git --upgrade
 
 ## Card reader prerequisites 
 
-pcscd, libnfc and python-bindings located in source/nfc-bindings.
+pcscd, libnfc and python bindings located in source/nfc-bindings.
 
 # Creating a new user
 ## Create user in hula
@@ -19,7 +19,7 @@ https://hackeriet.no/hula
 
 On the machine with the card reader put a blank card on the reader and, as root, run:
 
-```bash
+```
 # MIFARE_KEY_A=<secret1> MIFARE_KEY_B=<secret2> write_card
 
 NFC reader: ACS/ACR122U PICC Interface opened
