@@ -6,6 +6,10 @@ This package contains tools to open doors and dispense sodas at Hackeriet.
 
 pip3 install git+https://github.com/hackeriet/pyhackeriet.git --upgrade
 
+## Card reader prerequisites 
+
+pcscd, libnfc and python-bindings located in source/nfc-bindings.
+
 # Creating a new user
 ## Create user in hula
 
@@ -32,10 +36,17 @@ Copy the card hash to the "Access card" field.
 
 ## Update databases
 
-The doors automatically downloads card data every 60 minutes.
+The doors will automatically download card data every 60 minutes.
 
 For brus, see the psql log on brus.hackeriet.no -- or fix the integration.
- 
+
+# Troubleshooting
+
+## Card Reader not working
+
+  * Check that it has enough power (use a USB hub).
+  * On RPi make sure the firmware is current (rpi-update)
+  * Try reseating it, it will fail intermittently on many rapid open attempts(?)
 
 # TODO
   * Migrate user management and authentication to hackerhula
