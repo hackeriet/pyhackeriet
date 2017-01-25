@@ -1,7 +1,7 @@
 import hashlib, json
 
 tokens = {}
-dooraccess = "/var/run/dooraccess"
+dooraccess = "/etc/dooraccess"
 
 def load():
   global tokens

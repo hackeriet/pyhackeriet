@@ -5,7 +5,7 @@ from hackeriet.door import Doors, users
 import uuid, time, sys, os, logging
 
 piface = False
-if hasattr(os.environ, "PIFACE"): piface = True
+if "PIFACE" in os.environ: piface = True
 pin = int(os.getenv("DOOR_PIN", 5))
 timeout = int(os.getenv("DOOR_TIMEOUT", 1))
 

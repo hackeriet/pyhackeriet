@@ -156,11 +156,8 @@ def close():
 
 accessBits = compute_access_bits(c1, c2, c3)
 
-print("tut")
 context = nfc.init()
-print("tut")
 pnd = nfc.open(context)
-print("tut")
 
 if pnd is None:
     raise Exception('ERROR: Unable to open NFC device.')
