@@ -18,7 +18,7 @@ def space_state(mosq, obj, msg):
     lastupdate = int(time.time())
     humla = msg.payload.decode()
 
-mqtt = MQTT()
+mqtt = MQTT(space_state)
 mqtt.subscribe("hackeriet/space_state", 0)
 #mqtt.subscribe("hackeriet/topic", 0)
 
