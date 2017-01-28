@@ -10,6 +10,11 @@ setup(
     packages=find_packages(),
     scripts=["bin/"+a for a in os.listdir("bin")],
     include_package_data=True,
+    install_requires=[
+      'paho-mqtt',
+      'pychromecast',
+      'flask'
+    ],
     entry_points = {
        'console_scripts': [
                            'httpbridge=hackeriet.web.httpbridge:main',

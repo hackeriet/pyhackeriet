@@ -27,6 +27,7 @@ class MQTT(object):
         self.mqttc.on_connect = MQTT.on_connect
         self.mqttc.on_publish = MQTT.on_publish
         self.mqttc.on_subscribe = MQTT.on_subscribe
+        self.subscriptions = []
 
         # Uncomment to enable debug messages
         #mqttc.on_log = on_log
@@ -51,10 +52,15 @@ class MQTT(object):
 
     def subscribe(self,*a):
         self.mqttc.subscribe(a)
+        self.subscriptions.append(a)
 
     # Define default event callbacks
     def on_connect(mosq, obj, rc):
         print("MQTT connected ({})".format(rc))
+
+        # Renew on reconnection
+        for t in self.subscriptions:
+            self.mqttc.subscribe(a)
 
     def on_message(mosq, obj, msg):
         print("MQTT {} ({}): {}".format(msg.topic, msg.qos, msg.payload))

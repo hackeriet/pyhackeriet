@@ -44,7 +44,8 @@ For brus, see the psql log on brus.hackeriet.no -- or fix the integration.
 
 ## Card Reader not working
 
-  * Check that it has enough power (use a USB hub).
+  * Check if it works with libnfc tools (nfc-list, nfc-mfclassic)
+  * Check that it has enough power (use a USB hub)
   * On RPi make sure the firmware is current (rpi-update)
   * Try reseating it, it will fail intermittently on many rapid open attempts(?)
 
