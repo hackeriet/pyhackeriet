@@ -59,7 +59,7 @@ class MQTT(object):
         print("MQTT connected ({})".format(rc))
 
         # Renew on reconnection
-        for t in self.subscriptions:
+        for t in MQTT.subscriptions:
             mosq.subscribe(t)
 
     def on_message(mosq, obj, msg):
