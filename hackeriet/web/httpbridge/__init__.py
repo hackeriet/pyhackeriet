@@ -13,15 +13,16 @@ global topic
 topic = "_"
 lastupdate = int(time.time())
 
+def space_state(mosq, obj, msg):
+    global humla
+    lastupdate = int(time.time())
+    humla = msg.payload.decode()
+
 mqtt = MQTT()
 mqtt.subscribe("hackeriet/space_state", 0)
 #mqtt.subscribe("hackeriet/topic", 0)
 
-def space_state(mosq, obj, msg):
-    lastupdate = int(time.time())
-    humla = msg.payload.decode()
 
-mqtt.on_message = space_state
 
 @app.after_request
 def add_header(response):
