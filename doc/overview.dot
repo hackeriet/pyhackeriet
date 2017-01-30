@@ -1,0 +1,36 @@
+strict digraph pyhackeriet {
+  concentrate=true;
+
+  stripe -> brusweb;
+  hackerhula -> brusweb[label="Membership info"];
+
+  "physical button" -> doordingbuttond;
+  hackerhula -> nfcd;
+  nfcd -> "physical door"[label="Electronic strike lock"];
+
+  doordingbuttond -> bell;
+  hackerietbot -> Matrix -> IRC;
+
+  httpbridge -> "space open/closed";
+  httpbridge -> spaceapi;
+  "web doorbell" -> httpbridge;
+
+  "magnetic switch" -> doordingbuttond;
+  "physical door" -> "magnetic switch";
+
+  // mqtt
+  edge[color=turquoise];
+  vend -> brusweb;
+  brusweb -> vend;
+  doordingbuttond -> httpbridge;
+  doordingbuttond -> hackerietbot;
+  httpbridge -> doordingbuttond;
+  "chromecast-snoop" -> "redesigned-guacamole";
+  plants -> "redesigned-guacamole";
+  plants -> influxdb;
+  nfcd -> hackerietbot;
+
+  nfcd[label="nfcd\ndoor software"];
+  vend[label="vend\nvending machine"]
+  label="The general flow of things";
+}

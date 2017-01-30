@@ -6,6 +6,8 @@ This package contains tools to open doors and dispense sodas at Hackeriet.
 
 pip3 install git+https://github.com/hackeriet/pyhackeriet.git --upgrade
 
+Environment variables required for running are detailed in the systemd service files.
+
 ## Card reader prerequisites 
 
 pcscd, libnfc and python bindings located in source/nfc-bindings.
@@ -49,6 +51,7 @@ For brus, see the psql log on brus.hackeriet.no -- or fix the integration.
   * On RPi make sure the firmware is current (rpi-update)
   * Try reseating it, it will fail intermittently on many rapid open attempts(?)
 
-# TODO
-  * Migrate user management and authentication to hackerhula
+# Overview
+
+![That's right](doc/overview.png)
 
