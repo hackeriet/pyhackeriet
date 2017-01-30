@@ -14,7 +14,7 @@ Publish
 
 import paho.mqtt.client as paho
 from urllib.parse import urlparse
-import os, socket, sys
+import os, socket, sys, ssl
 
 
 class MQTT(object):
@@ -38,6 +38,7 @@ class MQTT(object):
 
         # Connect
         self.mqttc.username_pw_set(url.username, url.password)
+        self.mqttc.tls_set("/etc/ssl/certs/DST_Root_CA_X3.pem", tls_version=ssl.PROTOCOL_TLSv1_2) 
         self.mqttc.connect(url.hostname, url.port)
         self.mqttc.loop_start()
 
@@ -76,7 +77,7 @@ class MQTT(object):
 
 
 if __name__ == '__main__':
-    mqtt = MQTT(lambda mosq, obj, msg: print(msg.payload))
+    mqtt = MQTT(lambda mosq, obj, msg: print(msg.payload.decode()))
     mqtt.subscribe("hello/world", 0)
     mqtt("hello/world", "piss")
     import time

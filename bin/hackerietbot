@@ -131,5 +131,9 @@ def door_sensor_event(msg):
         notice("Door {}".format(msg))
 add_event('hackeriet/door_sensor', door_sensor_event)
 
+def door_unlock_event(msg):
+    if not humla_open:
+        notice("Door unlocked")
+add_event('hackeriet/door/hackeriet/open', door_unlock_event)
 
 run()
