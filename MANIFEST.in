@@ -1,4 +1,6 @@
 include README.md
 graft hackeriet/web/httpbridge/static
 graft hackeriet/web/httpbridge/templates
+graft hackeriet/web/brusweb/static
+graft hackeriet/web/brusweb/templates
 graft hackeriet/systemd
