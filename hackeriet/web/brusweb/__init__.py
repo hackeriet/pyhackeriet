@@ -2,7 +2,7 @@ from flask import Flask, request, Response, render_template, g, redirect, url_fo
 from functools import wraps
 import stripe
 import os, uuid, json
-import brusdb, members
+from hackeriet.web.brusweb import brusdb, members
 from hackeriet.mqtt import MQTT
 
 # rulle ut på maskin
