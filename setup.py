@@ -18,7 +18,7 @@ setup(
     entry_points = {
        'console_scripts': [
                            'httpbridge=hackeriet.web.httpbridge:main',
-                           'chromecast-snoop=hackeriet.chromecast:snoop'
+                           'chromecast-snoop=hackeriet.chromecast:snoop',
                            'brusweb=hackeriet.web.brusweb:main'
                           ]
     }
