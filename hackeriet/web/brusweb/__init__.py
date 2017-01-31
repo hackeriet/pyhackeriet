@@ -132,7 +132,7 @@ def charge():
     return render_template('charge.html', amount=int(amount)/100)
 
 def authorise_sale(slot, card_data):
-    price, desc = brusdb.get_product_price_descr(brusdb.getproduct(mid, slot))
+    price, desc = brusdb.get_product_price_descr(brusdb.getproduct(slot))
 
     if brusdb.subtract_funds(members.username_from_card(card_data), price, desc):
         mqtt("brus/dispense", slot)

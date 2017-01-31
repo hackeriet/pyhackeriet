@@ -15,7 +15,7 @@ def load():
     req = Request(url.scheme + "://" + url.hostname + url.path)
     req.add_header('Authorization', 'Basic {}'.format(
         b64encode((url.username + ":" + url.password).encode()).decode()))
-    users = json.load(urlopen(req).read().decode())
+    users = json.loads(urlopen(req).read().decode())
 
 def hash_password(p, salt, iters):
     return b64encode(hashlib.pbkdf2_hmac('sha256', p.encode(),

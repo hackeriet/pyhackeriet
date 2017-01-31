@@ -29,7 +29,7 @@ def subtract_funds(user, value, descr="", overdraft=False):
     return r.rowcount > 0
 
 def balance(user):
-    r = engine.execute(text("SELECT SUM(transactions.value) FROM transactions, users WHERE transactions.username=:user"), user=user)
+    r = engine.execute(text("SELECT SUM(transactions.value) FROM transactions WHERE transactions.username=:user"), user=user)
     return r.fetchone()[0]
 
 def transaction_history(user):
