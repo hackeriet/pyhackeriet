@@ -144,6 +144,9 @@ def authorise_sale(slot, card_data):
     mqtt("brus/error", "Insufficient funds")
 
 if __name__ == "__main__":
+    main()
+
+def main():
     members.load()
     mqtt = MQTT(mqtt_handler)
     mqtt.subscribe("brus/sell")

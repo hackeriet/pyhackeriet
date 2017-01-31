@@ -19,6 +19,7 @@ setup(
        'console_scripts': [
                            'httpbridge=hackeriet.web.httpbridge:main',
                            'chromecast-snoop=hackeriet.chromecast:snoop'
+                           'brusweb=hackeriet.web.brusweb:main'
                           ]
     }
 #    tests_require=['piytest'],

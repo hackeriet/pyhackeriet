@@ -15,8 +15,8 @@ def mqtt_handler(mosq, obj, msg):
         vending.vend_product(int(msg.payload))
 
 mqtt = MQTT(mqtt_handler)
-mqtt.subscribe("brus/dispense")
-mqtt.subscribe("brus/error")
+mqtt.subscribe("brus/dispense",0)
+mqtt.subscribe("brus/error",0)
 
 while True:
   vending.ready()
