@@ -16,7 +16,7 @@ slot_product = Table("slot_product", meta, autoload=True, autoload_with=engine)
 product = Table("product", meta, autoload=True, autoload_with=engine)
 
 def add_funds(user,value,descr=""):
-  engine.execute(transactions.insert().values(value=value, descr="", uid=user))
+  engine.execute(transactions.insert().values(value=value, descr="", username=user))
 
 def subtract_funds(user, value, descr="", overdraft=False):
     if value < 0:
@@ -25,16 +25,16 @@ def subtract_funds(user, value, descr="", overdraft=False):
       # FIXME session
       if balance(user) < value:
         return False
-    r = engine.execute(transactions.insert().values(value=-value, descr=descr, uid=user))
+    r = engine.execute(transactions.insert().values(value=-value, descr=descr, username=user))
     return r.rowcount > 0
 
 def balance(user):
-    r = engine.execute(text("SELECT SUM(transactions.value) FROM transactions, users WHERE transactions.uid=:uid"), uid=user)
+    r = engine.execute(text("SELECT SUM(transactions.value) FROM transactions, users WHERE transactions.username=:user"), user=user)
     return r.fetchone()[0]
 
 def transaction_history(user):
     q = select([transactions.c.tid, transactions.c.timestamp, transactions.c.descr,
-                transactions.c.value]).where(transactions.c.uid==user).order_by(transactions.c.tid.desc())
+                transactions.c.value]).where(transactions.c.username==user).order_by(transactions.c.tid.desc())
     return engine.execute(q).fetchall()
 
 def get_outgoing_transactions():

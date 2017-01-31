@@ -5,14 +5,10 @@ import os, uuid, json
 from hackeriet.web.brusweb import brusdb, members
 from hackeriet.mqtt import MQTT
 
-# rulle ut på maskin
-# teste maskin
-# rulle ut brus
-# teste brus
 # lage bruker for gratis brus
 # fikse graf
 # sende mail
-# Stripe IDS
+# Stripe ids
 
 stripe_keys = {
     'secret_key': os.environ.get('SECRET_KEY', ""),
@@ -149,7 +145,7 @@ if __name__ == "__main__":
 def main():
     members.load()
     mqtt = MQTT(mqtt_handler)
-    mqtt.subscribe("brus/sell")
-    mqtt.subscribe("hackeriet/reload_users")
+    mqtt.subscribe("brus/sell",0)
+    mqtt.subscribe("hackeriet/reload_users",0)
     app.debug = False
     app.run()
