@@ -5,7 +5,10 @@ import os, uuid, json
 from hackeriet.web.brusweb import brusdb, members
 from hackeriet.mqtt import MQTT
 
+# teste stripe
 # lage bruker for gratis brus
+# brus/error virker ikke
+# descriptions virker settes ikke
 # fikse graf
 # sende mail
 # Stripe ids
@@ -25,6 +28,12 @@ def mqtt_handler(mosq,obj,msg):
         authorise_sale(**args)
     if msg.topic == "hackeriet/reload_users":
         members.load()
+
+members.load()
+mqtt = MQTT(mqtt_handler)
+mqtt.subscribe("brus/sell",0)
+mqtt.subscribe("hackeriet/reload_users",0)
+
 
 def check_auth(username, password):
     return members.authenticate(username, password)
@@ -61,10 +70,10 @@ def hello():
 @app.route("/brus/sales.json")
 def stats():
     r = []
-#    st = brusdb.get_outgoing_transactions()
-#    for d in {e for (t,v,e) in st}:
-#        if len([t for (t,v,e) in st if e==d]) > 4:
-#            r += [{"key": d, "values": [[int(t)*1000,-v] if e==d else [int(t)*1000,0] for (t,v,e) in st]}]
+    st = brusdb.get_outgoing_transactions()
+    for d in {e for (t,v,e) in st}:
+        if len([t for (t,v,e) in st if e==d]) > 4:
+            r += [{"key": d, "values": [[int(t)*1000,-v] if e==d else [int(t)*1000,0] for (t,v,e) in st]}]
     return json.dumps(r)
 
 @app.route('/brus/')
@@ -94,7 +103,7 @@ def manual_subtract():
 def admin():
     user=request.authorization.username
     return render_template('admin.html', username=user,
-                           brusdb=members.list_users())
+                           users=members.list_users())
 
 @app.route("/brus/admin/add", methods=['POST'])
 @requires_admin
@@ -110,7 +119,7 @@ def charge():
     amount = request.form['amountt']
     user=request.authorization.username
 
-    stripe_id = brusdb.get_stripe_id(user)
+    stripe_id = None #brusdb.get_stripe_id(user)
 
     if not stripe_id:
         customer = stripe.Customer.create(
@@ -118,7 +127,7 @@ def charge():
             card=request.form['stripeToken']
         )
         stripe_id = customer.id
-        brusdb.set_stripe_id(user, stripe_id)
+        #brusdb.set_stripe_id(user, stripe_id)
 
     charge = stripe.Charge.create(
         customer=stripe_id,
@@ -132,7 +141,7 @@ def charge():
     return render_template('charge.html', amount=int(amount)/100)
 
 def authorise_sale(slot, card_data):
-    price, desc = brusdb.get_product_price_descr(brusdb.getproduct(slot))
+    price, desc = brusdb.get_product_price_descr(brusdb.getproduct("brusautomat", slot))
 
     if brusdb.subtract_funds(members.username_from_card(card_data), price, desc):
         mqtt("brus/dispense", slot)
@@ -143,9 +152,5 @@ if __name__ == "__main__":
     main()
 
 def main():
-    members.load()
-    mqtt = MQTT(mqtt_handler)
-    mqtt.subscribe("brus/sell",0)
-    mqtt.subscribe("hackeriet/reload_users",0)
     app.debug = False
     app.run()

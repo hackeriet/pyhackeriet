@@ -7,7 +7,7 @@
   <input type='text' name='desc' value='Manually added by {{username}}.' size=40>
   <select name='user'>
     {% for u in users %}
-    <option value='{{u[0]}}'>{{u[0]}}</option>
+    <option value='{{u}}'>{{u}}</option>
     {%endfor%}
   </select>
   <input type='submit'>
