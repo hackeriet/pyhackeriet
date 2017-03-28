@@ -72,7 +72,7 @@ def hello():
 
 @app.route("/spaceapi.json")
 def spaceapi():
-  open="true" if humla is "OPEN" else "false"
+  open="true" if humla == "OPEN" else "false"
   return render_template('spaceapi.json', humla=humla, open=open, lastupdate=lastupdate)
 
 def main():
