@@ -14,10 +14,10 @@ if "PIFACE" in os.environ:
   logging.info('Using piface configuration')
 
 # Be backwards compatible with old env variable name
-gpio_pin = int(os.getenv("DOOR_GPIO_PIN", os.getenv("DOOR_PIN", 5)))
+gpio_pin = int(os.getenv("DOOR_GPIO_PIN", os.getenv("DOOR_PIN", 0)))
 
 # How many seconds should the door lock remain open
-timeout = int(os.getenv("DOOR_TIMEOUT", 1))
+timeout = int(os.getenv("DOOR_TIMEOUT", 2))
 
 door = Doors(piface=piface,pin=gpio_pin,timeout=timeout)
 mqtt = MQTT()
