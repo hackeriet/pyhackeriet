@@ -1,6 +1,6 @@
 [Unit]
-Description=NFC Door Control
-#After=network.target
+Description=Waits for dataread 
+After=network.target
 
 [Service]
 Type=simple
@@ -11,12 +11,12 @@ Environment=LC_ALL="en_US.UTF-8"
 Environment=LC_LANG="en_US.UTF-8" 
 Environment=MIFARE_KEY_A=
 Environment=MIFARE_KEY_B=
-Environment=PIFACE=true
-Environment=DOOR_PIN=0
-#Environment=DOOR_TIMEOUT=
-ExecStart=/usr/bin/nfcd 
+#Environment=DOOR_NAME=hackeriet
+#Environment=MQTT_URL=mqtt://user:pass@server
+ExecStart=/usr/bin/cardreaderd
 Restart=always
-RestartSec=30
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
+
