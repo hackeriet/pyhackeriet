@@ -8,6 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)-15s %(message)s')
 
 door_name = os.getenv("DOOR_NAME", 'hackeriet')
 door_topic = "hackeriet/door/%s/open" % door_name
+door_timeout = int(os.getenv("DOOR_TIMEOUT", 2))
 
 mqtt = MQTT()
 
@@ -24,6 +25,8 @@ def main():
         mqtt(door_topic, user)
       else:
         logging.debug('User not found: %s' % data[0:16])
+      # Avoid spewing messages every single ms while a card is in front of the reader
+      time.sleep(door_timeout)
 
 if __name__ == "__main__":
   main()
