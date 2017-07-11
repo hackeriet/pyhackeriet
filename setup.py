@@ -19,9 +19,10 @@ setup(
        'console_scripts': [
                            'httpbridge=hackeriet.web.httpbridge:main',
                            'chromecast-snoop=hackeriet.chromecast:snoop',
-                           'brusweb=hackeriet.web.brusweb:main'
+                           'brusweb=hackeriet.web.brusweb:main',
+                           'cardreaderd=hackeriet.cardreaderd:main',
+                           'doorcontrold=hackeriet.doorcontrold:main'
                           ]
     }
-#    tests_require=['piytest'],
-#    test_suite = 'pytest'
 )
+
