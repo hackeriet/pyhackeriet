@@ -19,18 +19,16 @@ gpio_pin = int(os.getenv("DOOR_GPIO_PIN", os.getenv("DOOR_PIN", 0)))
 timeout = int(os.getenv("DOOR_TIMEOUT", 2))
 
 door = Doors(piface=piface,pin=gpio_pin,timeout=timeout)
-mqtt = MQTT()
+
+def on_message(mosq, obj, msg):
+  door.open()
+  logging.info('Door opened: %s' % msg.payload
 
 door_name = os.getenv("DOOR_NAME", 'hackeriet')
 door_topic = "hackeriet/door/%s/open" % door_name
 
+mqtt = MQTT(on_message)
 mqtt.subscribe(door_topic, 0)
-
-def on_message(mosq, obj, msg):
-  door.open()
-  logging('Door opened: %s' % msg.payload.decode())
-
-mqtt.on_message = on_message
 
 # Block forever
 def main():
