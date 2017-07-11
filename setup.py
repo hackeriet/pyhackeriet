@@ -3,7 +3,7 @@ import os
 
 setup(
     name = "pyhackeriet",
-    version = "0.0.1",
+    version = "0.1.0",
     author = "krav",
     description = ("Advanced Hackerspace Building Framework"),
     license = "WTFPL",
