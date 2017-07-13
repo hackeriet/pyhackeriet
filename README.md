@@ -1,10 +1,10 @@
 # Yet Another Door Control Project Repository 
 
-This package contains tools to open doors and dispense sodas at Hackeriet.
+This package contains tools to open doors and dispense sodas at Hackeriet (and much more).
 
 # Installing
 
-pip3 install git+https://github.com/hackeriet/pyhackeriet.git --upgrade
+    pip3 install git+https://github.com/hackeriet/pyhackeriet.git --upgrade
 
 Environment variables required for running are detailed in the systemd service files.
 
