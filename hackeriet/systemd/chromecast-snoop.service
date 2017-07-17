@@ -1,0 +1,14 @@
+[Unit]
+Description=Chromecast 'Now playing' snooper for music.hackeriet.no
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Environment=MQTT_URL=mqtt://user:pass@localhost:8883 "MQTT_CAST_TOPIC=hackeriet/chromecast" "CAST_NAME=Hackeriet"
+ExecStart=/usr/bin/python3 /usr/bin/chromecast-snoop
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
