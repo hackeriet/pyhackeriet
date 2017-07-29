@@ -56,7 +56,8 @@ class MQTT(object):
         MQTT.subscriptions.append(a)
 
     # Define default event callbacks
-    def on_connect(mosq, obj, rc):
+    # HACK: Do not know what the last param is supposed to be
+    def on_connect(mosq, obj, rc, bogus):
         print("MQTT connected ({})".format(rc))
 
         # Renew on reconnection
