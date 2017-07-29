@@ -30,7 +30,7 @@ def main():
         logging.debug('auth: card data does not belong to a user: %s' % data[0:16])
       # Avoid spewing messages every single ms while a card is in front of the reader
       time.sleep(door_timeout)
-    else
+    else:
       logging.debug('mifare: no data read in last attempt')
 
 if __name__ == "__main__":
