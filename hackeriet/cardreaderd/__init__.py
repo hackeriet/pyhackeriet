@@ -4,7 +4,7 @@ from hackeriet.mqtt import MQTT
 from hackeriet.door import users
 import os, logging, time
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 door_name = os.getenv("DOOR_NAME", 'hackeriet')
 door_topic = "hackeriet/door/%s/open" % door_name
