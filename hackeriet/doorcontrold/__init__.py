@@ -3,7 +3,7 @@ from hackeriet.mqtt import MQTT
 from hackeriet.door import Doors
 import threading, os, logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)-15s %(message)s')
+logging.basicConfig(level=logging.INFO)
 
 piface = False
 

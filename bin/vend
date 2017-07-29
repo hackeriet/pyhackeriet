@@ -6,7 +6,7 @@ from hackeriet import mifare, vending
 from hackeriet.door import users
 from hackeriet.mqtt import MQTT
 
-logging.basicConfig(level=logging.DEBUG,format='%(asctime)-15s %(message)s')
+logging.basicConfig(level=logging.DEBUG)
 
 def mqtt_handler(mosq, obj, msg):
     if msg.topic == "brus/error":
