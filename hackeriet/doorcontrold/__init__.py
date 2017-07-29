@@ -33,7 +33,7 @@ mqtt.subscribe(door_topic, 0)
 # Block forever
 def main():
   for t in threading.enumerate():
-    if t us threading.currentThread():
+    if t is threading.currentThread():
       continue
     t.join()
 
