@@ -1,5 +1,5 @@
 [Unit]
-Description=Controls door on MQTT messages
+Description=Triggers door unlocking on MQTT messages
 After=network.target
 
 [Service]

@@ -1,5 +1,5 @@
 [Unit]
-Description=Waits for dataread 
+Description=Publish messages on MQTT topic for door opening on successful card read
 After=network.target
 
 [Service]
