@@ -22,7 +22,7 @@ door = Doors(piface=piface,pin=gpio_pin,timeout=timeout)
 
 def on_message(mosq, obj, msg):
   door.open()
-  logging.info('Door opened: %s' % msg.payload
+  logging.info('Door opened: %s' % msg.payload)
 
 door_name = os.getenv("DOOR_NAME", 'hackeriet')
 door_topic = "hackeriet/door/%s/open" % door_name
