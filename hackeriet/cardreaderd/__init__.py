@@ -2,7 +2,7 @@
 from hackeriet import mifare
 from hackeriet.mqtt import MQTT
 from hackeriet.door import users
-import os, logging
+import os, logging, time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)-15s %(message)s')
 
