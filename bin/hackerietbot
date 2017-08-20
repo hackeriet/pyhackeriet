@@ -39,7 +39,7 @@ signal.signal(signal.SIGINT, sigint_handler)
 
 logger = logging.getLogger('matrixbridge')
 logger.addHandler(logging.StreamHandler(sys.stdout))
-logger.setLevel(logging.INFO)
+logger.setLevel(loglvl)
 
 commands={} # IRC triggers
 events={} # MQTT events
