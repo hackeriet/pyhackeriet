@@ -38,7 +38,8 @@ Copy the card hash to the "Access card" field.
 
 ## Update databases
 
-The doors will automatically download card data every 60 minutes.
+The door into hackeriet will automatically download new card data every minute.
+The other doors (don't really know) will automatically download card data every 60 minutes.
 
 For brus, see the psql log on brus.hackeriet.no -- or fix the integration.
 
