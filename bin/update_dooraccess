@@ -1,0 +1,37 @@
+#!/bin/bash     
+# Helper script to keep door access control list up to date with hackerhula.
+# Expected to be run with cron. e.g:
+#     0-59 * * * * /usr/bin/update_dooraccess
+set -e
+
+HULA_USER='username'
+HULA_PASS='password'
+TMP=/tmp/dooraccess
+DEST=/etc/dooraccess
+SYSTEMD_SVC=cardreaderd
+
+# Download new card data
+echo -n 'Downloading latest door access list... '
+curl -sSf -o $TMP https://$HULA_USER:$HULA_PASS@hackeriet.no/hula/member/dooraccess
+echo 'OK!'
+
+# Verify valid JSON
+echo -n 'Verifying valid JSON... '
+/usr/bin/core_perl/json_pp < $TMP > /dev/null
+echo 'OK!'
+
+# Remove dynamic expires values before diff
+grep -v expires $TMP > ${TMP}_a.tmp 
+grep -v expires $DEST > ${TMP}_b.tmp
+
+set +e
+echo -n 'Comparing to existing list... '
+diff ${TMP}_a.tmp ${TMP}_b.tmp > /dev/null
+if [ $? -eq 0 ]; then
+        echo 'No change, exiting'
+        exit 0
+else
+        cp $TMP $DEST
+        echo "$DEST updated!"
+        logger -t `basename $0` -p warning "Door access list has been updated. Service $SYSTEMD_SVC needs manual restart!"
+fi
