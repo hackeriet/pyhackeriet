@@ -1,16 +1,15 @@
-#!/usr/bin/env python3
-
-import uuid, sys, hashlib
+#!/usr/bin/env python3                                                                                                                                                                                                          
+                                                                                                                                                                                                                                
+import uuid, sys, hashlib                                                                                                                                                                                                       
 from hackeriet import mifare
 
 d = uuid.uuid4().bytes
 
-printf("Waiting for card")
+print("Waiting for card")
 mifare.wait_card()
-printf("Writing card ...")
+print("Writing card ...")
 mifare.write_sector(d, 7)
 
-print("Hash: " + hashlib.sha256(d.bytes).hexdigest())
+print("Hash: " + hashlib.sha256(d).hexdigest())
 print("Wrote: " + str(d))
 print("Read: " + str(mifare.read_sector(7)[0:16]))
-
