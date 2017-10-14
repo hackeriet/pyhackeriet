@@ -105,14 +105,6 @@ def admin():
     return render_template('admin.html', username=user,
                            users=members.list_users())
 
-@app.route("/brus/door/hackeriet/open", methods=['POST'])
-@requires_auth
-def open_door():
-    user=request.authorization.username
-    signature='%s (brusweb)' % user
-    mqtt('hackeriet/door/hackeriet/open', signature)
-    return 'Door triggered'
-
 @app.route("/brus/admin/add", methods=['POST'])
 @requires_admin
 def admin_add():
