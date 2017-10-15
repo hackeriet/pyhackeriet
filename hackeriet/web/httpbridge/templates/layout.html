@@ -21,9 +21,14 @@
     <div class="container">
     	{% block body %}{% endblock %}
     </div>
-    <p>
-      <small>If you're a member (or a 1337 h4ck3r) you can open the door with the <a href="https://door-remote.hackeriet.no/">door remote</a></small>
-    </p>
+    <div class="container">
+      <p class="alert alert-info">
+        If there's no response try nagging on IRC (alternatively through <a href="https://riot.im/app/#/room/#freenode_#oslohackerspace:matrix.org">Matrix with riot.im</a>).
+      </p>
+      <p class="alert alert-info">
+        If you're a member (or a 1337 h4ck3r) you can open the door with the <a href="https://door-remote.hackeriet.no/">door remote</a>
+      </p>
+    </div>
   </body>
   <script>
       document.getElementsByName("person")[0].value=localStorage.getItem("name")
