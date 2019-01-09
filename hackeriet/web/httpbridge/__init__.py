@@ -3,6 +3,8 @@
 import sys
 import random, time
 from hackeriet.mqtt import MQTT
+import nacl, base64
+from nacl.public import PublicKey, SealedBox
 
 from flask import Flask, render_template, request, redirect
 app = Flask(__name__)
@@ -12,6 +14,12 @@ humla = "unknown"
 global topic
 topic = "_"
 lastupdate = int(time.time())
+
+def encrypt(s, pk_b64="AH1Es2z7G5q0S0wKPdKnGbie8ueeB8hfZzU6aQqyuBw="): # hackerpass ding-ip-secret-key
+    box = SealedBox(PublicKey(base64.b64decode(pk_b64)))
+    enc = box.encrypt(s)
+    return(base64.urlsafe_b64encode(enc).decode('ascii'))
+
 
 def space_state(mosq, obj, msg):
     global humla
@@ -64,7 +72,7 @@ def hello():
         else:
             person = ''
 
-        mqtt("hackeriet/ding", "%s <%s>" % (person, addr))
+        mqtt("hackeriet/ding", "%s <%s>" % (person, encrypt(bytes(addr,"ascii"))))
 
         return render_template('knocked.html')
     else:
