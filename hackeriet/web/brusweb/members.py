@@ -9,7 +9,7 @@ users = {}
 
 def load():
     global users
-    url_str = getenv("MEMBERS_URL", "https://hackeriet.no/hula/member/all_members.json")
+    url_str = getenv("MEMBERS_URL", "https://foo:bar@hackeriet.no/hula/member/all_members.json")
     url = urlparse(url_str)
 
     req = Request(url.scheme + "://" + url.hostname + url.path)
