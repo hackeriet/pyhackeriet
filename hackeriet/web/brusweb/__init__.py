@@ -67,15 +67,6 @@ def requires_admin(f):
 def hello():
     return redirect(url_for('index'))
 
-@app.route("/brus/sales.json")
-def stats():
-    r = []
-    st = brusdb.get_outgoing_transactions()
-    for d in {e for (t,v,e) in st}:
-        if len([t for (t,v,e) in st if e==d]) > 4:
-            r += [{"key": d, "values": [[int(t)*1000,-v] if e==d else [int(t)*1000,0] for (t,v,e) in st]}]
-    return json.dumps(r)
-
 @app.route('/brus/')
 def index():
     return render_template('index.html')
