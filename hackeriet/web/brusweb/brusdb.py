@@ -6,7 +6,7 @@
 from sqlalchemy import *
 
 #engine = create_engine('sqlite:///door.db', echo=True)
-engine = create_engine('postgresql://brus:brus@localhost/brus', echo=True)
+engine = create_engine('postgresql://brus:brus@localhost/brus')
 
 meta = MetaData()
 users = Table("users", meta, autoload=True, autoload_with=engine)
