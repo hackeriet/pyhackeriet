@@ -19,13 +19,13 @@ def load():
         b64encode((url.username + ":" + url.password).encode()).decode()))
     users = json.loads(urlopen(req).read().decode())
 
-    # Create a brus user for all hackeriet members who doesn't have one
+    # Create a brus user for all hackeriet members who don't have one
     # TODO: Auto-refresh while running, to avoid having to restart process to reload
-    brus_usernames = get_all_brus_usernames()
-    for user in [ u for u in users if u["username"] not in brus_usernames ]:
+    brus_usernames = [ u for u in get_all_brus_usernames()]
+    unregistered = [ u for u in users if u["username"] not in brus_usernames ]
+    for user in unregistered:
         create_new_brus_user(username=user["username"], email=user["email"])
         print("Created new brus user for %s" % user["username"])
-
 
 def hash_password(p, salt, iters):
     return b64encode(hashlib.pbkdf2_hmac('sha256', p.encode(),
