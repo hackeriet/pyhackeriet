@@ -6,7 +6,7 @@
 from sqlalchemy import *
 
 #engine = create_engine('sqlite:///door.db', echo=True)
-engine = create_engine('postgresql://brus:brus@localhost/brus', echo=True)
+engine = create_engine('postgresql://brus:brus@localhost/brus')
 
 meta = MetaData()
 users = Table("users", meta, autoload=True, autoload_with=engine)
@@ -16,7 +16,17 @@ slot_product = Table("slot_product", meta, autoload=True, autoload_with=engine)
 product = Table("product", meta, autoload=True, autoload_with=engine)
 
 def add_funds(user,value,descr=""):
-  engine.execute(transactions.insert().values(value=value, descr="", username=user))
+  engine.execute(transactions.insert().values(value=value, descr=descr, username=user))
+
+def get_all_usernames():
+    stmt = select(columns=(users.c.username,))
+    res  = engine.execute(stmt).fetchall()
+    return (name for (name,) in res)
+
+def create_new_user(*, username=None, email=None):
+    assert username is not None
+    assert email is not None
+    engine.execute(users.insert().values(username=username, email=email))
 
 def subtract_funds(user, value, descr="", overdraft=False):
     if value < 0:

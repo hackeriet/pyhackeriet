@@ -1,6 +1,6 @@
 <html>
 <head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="/static/jquery-2.1.3.min.js"></script>
 <script src="https://checkout.stripe.com/checkout.js"></script>
 </head>
 <body>
@@ -12,6 +12,7 @@
 
   <form action="/brus/charge" method="post" id="payform">
     <input type="number" id="amount" value="500"> kr
+    <noscript>Using the pay button will not work without JavaScript enabled.</noscript>
     <button id="pay">Pay</button>
   </form>
 

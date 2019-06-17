@@ -1,0 +1,15 @@
+* {
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+#wrapper {
+  width: 80%;
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.img-responsive {
+  width: 100%;
+}

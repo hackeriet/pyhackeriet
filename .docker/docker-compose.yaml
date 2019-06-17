@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:9.4
+    environment:
+      POSTGRES_USER: brus
+      POSTGRES_PASSWORD: brus
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5432:5432
+    restart: always
+
+volumes:
+  pgdata:

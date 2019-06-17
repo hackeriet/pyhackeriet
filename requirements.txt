@@ -2,3 +2,6 @@ paho-mqtt
 pychromecast
 flask
 pynacl
+stripe
+sqlalchemy
+psycopg2
