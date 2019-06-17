@@ -16,7 +16,7 @@ slot_product = Table("slot_product", meta, autoload=True, autoload_with=engine)
 product = Table("product", meta, autoload=True, autoload_with=engine)
 
 def add_funds(user,value,descr=""):
-  engine.execute(transactions.insert().values(value=value, descr="", username=user))
+  engine.execute(transactions.insert().values(value=value, descr=descr, username=user))
 
 def get_all_usernames():
     stmt = select(columns=(users.c.username,))
