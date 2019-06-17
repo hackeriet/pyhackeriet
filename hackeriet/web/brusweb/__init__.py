@@ -115,7 +115,7 @@ def charge():
     if not stripe_id:
         customer = stripe.Customer.create(
             email=members.get_email(user),
-            card=request.form['stripeToken']
+            source=request.form['stripeToken']
         )
         stripe_id = customer.id
         #brusdb.set_stripe_id(user, stripe_id)
@@ -124,7 +124,9 @@ def charge():
         customer=stripe_id,
         amount=amount,
         currency='NOK',
-        description='Hackeriet'
+        capture=True,
+        description='Hackeriet',
+        statement_descriptor="BRUS TOP-UP"
     )
 
     brusdb.add_funds(user, int(amount)/100, "Transfer with Stripe.")
