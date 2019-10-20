@@ -6,6 +6,9 @@ from nacl.public import PublicKey, PrivateKey, SealedBox
 # Usage:
 #   hackerpass show ding-ip-secret-key | ./decrypt-ip.py <encrypted-ip>
 
+# Nix usage:
+#   hackerpass ding-ip-secret-key | nix-shell -p 'python.withPackages(ps: with ps; [ pynacl ])' --run 'python decrypt-ip.py <encrypted-ip>'
+
 def decrypt(s_b64, sk_b64):
     box = SealedBox(PrivateKey(base64.b64decode(sk_b64)))
     dec = box.decrypt(base64.urlsafe_b64decode(s_b64))
