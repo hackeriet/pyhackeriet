@@ -3,10 +3,9 @@
    "contact" : {
       "twitter" : "@hackeriet",
       "facebook" : "https://www.facebook.com/hackeriet",
-      "chat" : "https://vector.im/beta/#/room/!HvLHPoJuDWGcYnQJQB:hackeriet.no",
+      "chat" : "https://riot.im/app/#/room/#oslohackerspace:matrix.org",
       "email" : "styret@__SOPPELPOST__hackeriet.no",
-      "phone" : "+4723964858",
-      "irc" : "irc://freenode/#hackeriet"
+      "irc" : "irc://irc.libera.chat/#oslohackerspace"
    },
    "logo" : "https://hackeriet.no/comotion-sjn-transparent-1.2.svg",
    "url" : "https://hackeriet.no",
