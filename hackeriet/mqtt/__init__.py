@@ -38,7 +38,7 @@ class MQTT(object):
 
         # Connect
         self.mqttc.username_pw_set(url.username, url.password)
-        self.mqttc.tls_set("/etc/ssl/certs/DST_Root_CA_X3.pem", tls_version=ssl.PROTOCOL_TLSv1_2) 
+        self.mqttc.tls_set("/etc/ssl/certs/ca-certificates.crt", tls_version=ssl.PROTOCOL_TLSv1_2) 
         self.mqttc.connect(url.hostname, url.port)
         self.mqttc.loop_start()
 
