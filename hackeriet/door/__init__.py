@@ -1,11 +1,11 @@
 import time
 import atexit
-import RPi.GPIO as GPIO
-
-GPIO.setmode(GPIO.BCM) # Broadcom PIN numbering
+import logging
 
 class Doors():
   def __init__(self, piface=False, pin=5, timeout=1):
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM) # Broadcom PIN numbering
     self.timeout = timeout
     if piface:
       import pifacedigitalio
@@ -15,7 +15,7 @@ class Doors():
       self.pin = pin
       GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
 
-  @atexit.register
+  #@atexit.register
   def cleanup(self):
     if not self.piface:
       GPIO.cleanup()
@@ -30,3 +30,8 @@ class Doors():
       time.sleep(self.timeout)
       GPIO.output(self.pin, GPIO.LOW)
 
+class SimulatedDoor():
+  def __init__(self):
+      logging.info("Using simulated door")
+  def open(self):
+      logging.info("Door opened")
