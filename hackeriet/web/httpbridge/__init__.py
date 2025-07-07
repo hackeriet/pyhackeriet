@@ -26,7 +26,7 @@ def encrypt(s, pk_b64="AH1Es2z7G5q0S0wKPdKnGbie8ueeB8hfZzU6aQqyuBw="): # hackerp
     enc = box.encrypt(s)
     return(base64.urlsafe_b64encode(enc).decode('ascii'))
 
-
+# TODO: this should have a name that describes what it *does*, i.e. `update_space_state`
 def space_state(mosq, obj, msg):
     global humla
     lastupdate = int(time.time())
@@ -44,15 +44,23 @@ def add_header(response):
     response.cache_control.max_age = 0
     return response
 
-# these gifs are just 1x1 pictures of nothing
-# what is the point of this?
+@app.errorhandler(404)
+def not_found():
+
+
+# TODO: make some proper error handing where the assert-statements are
 @app.route("/hackeriet.gif")
 def gif():
-    n = random.choice([1,2,3,4,5,6])
-    if humla == "OPEN":
-        return redirect(f"/static/img/open/{n}.gif")
-    else:
-        return redirect(f"/static/img/closed/{n}.gif")
+    gif_path = f"/static/img/{humla.lower()}/"
+    assert os.path.exists('.'+gif_path), f"Path '{gif_path}' does not exist"
+
+    # finds all files in the directory that ends with .gif
+    gifs = [*filter(
+        lambda filename:not filename.endswith('.gif'),
+        os.listdir('.'+gif_path)
+    )]
+    assert len(gifs) > 0, f"path '{gif_path}' needs at least one .gif file"
+    return redirect(gif_path + random.choice(gifs))
 
 @app.route("/humla")
 def tut():
@@ -77,9 +85,11 @@ def hello():
         addr = request.headers['X-Forwarded-For']
     
     timeout = 60*30 # 30 minutes old pages will be ignored
-    time = int(request.form['time'] or 0)
+    timestamp = int(request.form['timestamp'] or 0)
 
-    if request.method == 'POST' and time > time.time() - timeout:
+    if request.method == 'POST':
+        if timestamp < time.time() - timeout:
+            return render_template('timeout.html')
         person = request.form['person'] or ''
         mqtt("hackeriet/ding", "%s <%s>" % (person, encrypt(bytes(addr,"ascii"))))
         return render_template('knocked.html')
@@ -90,6 +100,7 @@ def hello():
 
 # this endpoint stopped updating in april of 2025?
 # TODO: fix this
+
 @app.route("/spaceapi.json")
 def spaceapi():
   is_open = ["false","true"][humla == "OPEN"]
