@@ -14,8 +14,8 @@
       "twitter"
    ],
    "state" : {
-      "message" : "The space is {{ humla }}.",
-      "open" : {{ open }},
+      "message" : "The space is {{ space_state }}.",
+      "open" : {% if is_open %}true{% else %}false{% endif %},
       "lastchange" : {{ lastupdate }}
    },
    "location" : {

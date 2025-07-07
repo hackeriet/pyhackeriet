@@ -10,14 +10,9 @@ import json
 from flask import Flask, render_template, request, redirect
 app = Flask(__name__)
 
-# TODO: change data type for `humla` so it doesn't depend on being global
-# maybe make a class?
-# also, pick a more descriptive name such as `space_state`
-global humla
-humla = "unknown"
-global topic
-topic = "_"
-lastupdate = int(time.time())
+from spacestate import SpaceState
+
+space_state = SpaceState()
 
 # TODO: please don't hardcode encryption keys in a public repo
 # TODO: put this in a .env file not included in the repository
@@ -26,13 +21,7 @@ def encrypt(s, pk_b64="AH1Es2z7G5q0S0wKPdKnGbie8ueeB8hfZzU6aQqyuBw="): # hackerp
     enc = box.encrypt(s)
     return(base64.urlsafe_b64encode(enc).decode('ascii'))
 
-# TODO: this should have a name that describes what it *does*, i.e. `update_space_state`
-def space_state(mosq, obj, msg):
-    global humla
-    lastupdate = int(time.time())
-    humla = msg.payload.decode()
-
-mqtt = MQTT(space_state)
+mqtt = MQTT(space_state.mqtt_listener)
 mqtt.subscribe("hackeriet/space_state", 0)
 #mqtt.subscribe("hackeriet/topic", 0)
 
@@ -44,14 +33,10 @@ def add_header(response):
     response.cache_control.max_age = 0
     return response
 
-@app.errorhandler(404)
-def not_found():
-
-
 # TODO: make some proper error handing where the assert-statements are
 @app.route("/hackeriet.gif")
 def gif():
-    gif_path = f"/static/img/{humla.lower()}/"
+    gif_path = f"/static/img/{str(space_state).lower()}/"
     assert os.path.exists('.'+gif_path), f"Path '{gif_path}' does not exist"
 
     # finds all files in the directory that ends with .gif
@@ -63,17 +48,20 @@ def gif():
     return redirect(gif_path + random.choice(gifs))
 
 @app.route("/humla")
-def tut():
-    return humla
+def humla():
+    return space_state.get_state(), 200, {'Content-Type': 'text/plain'}
 
 @app.route("/topic.jsonp")
 def topictut():
-    t = f'hackerietTopic("{topic}")'
+    t = f'hackerietTopic("{space_state.get_topic()}")'
     return t, 200, {'Content-Type': 'application/javascript'}
 
 @app.route("/door.json")
 def door_json():
-    body = {"status":humla.lower(), "is_open":humla=="OPEN"}
+    body = {
+        "status": space_state.get_state(),
+        "is_open":space_state.is_open()
+    }
     t = json.dumps(body)
     return t, 200, {'Content-Type': 'application/javascript'}
 
@@ -94,7 +82,7 @@ def hello():
         mqtt("hackeriet/ding", "%s <%s>" % (person, encrypt(bytes(addr,"ascii"))))
         return render_template('knocked.html')
     else:
-        response = render_template('index.html', humla=humla, time=int(time.time()))
+        response = render_template('index.html', space_state=space_state.get_state(), time=int(time.time()))
         response.headers['Refresh'] = timeout
         return response
 
@@ -103,8 +91,11 @@ def hello():
 
 @app.route("/spaceapi.json")
 def spaceapi():
-  is_open = ["false","true"][humla == "OPEN"]
-  return render_template('spaceapi.json', humla=humla, open=is_open, lastupdate=lastupdate)
+  return render_template(
+    'spaceapi.json',
+    space_state=space_state.get_state(),
+    is_open=space_state.is_open(),
+    lastupdate=space_state.get_lastupdate_time())
 
 def main():
     #app.debug = True
