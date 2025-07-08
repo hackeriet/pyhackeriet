@@ -2,12 +2,18 @@
 {% block body %}
       <div class="hero-unit">
         <h2>Hackeriet doorbell</h2>
-        <p>Hackeriet is: <strong>{{ humla }}</strong></p>
+        <p>Hackeriet is: <strong>{{ space_state }}</strong></p>
         <p>This page lets you ring the doorbell when <a href="http://hackeriet.no">Hackeriet</a> is gathering.</p>
         <p>Your presence will also be announced on IRC #oslohackerspace</p>
+        <script>
+          function knock(){
+            localStorage.setItem("name", document.getElementsByName("person")[0].value);
+          }
+        </script>
         <form action="" method="post">
             <p>Who are you? (optional)&nbsp;<input type="text" name="person" value=""></p>
-            <p><input class="btn btn-primary btn-large" type="submit" value="Knock &raquo;" onclick='localStorage.setItem("name", document.getElementsByName("person")[0].value)'></p>
+            <p><input class="btn btn-primary btn-large" type="submit" value="Knock &raquo;" onclick='knock();'></p>
+            <input style="position: absolute; visibility: hidden;" name="timestamp" value="{{time}}" />
         </form>
       </div>
 {% endblock %}
