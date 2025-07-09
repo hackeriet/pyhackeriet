@@ -91,7 +91,7 @@ def knocked():
     return render_template('knocked.html')
 
 @app.route("/timeout", methods=["GET"])
-def knocked():
+def timeout():
     return render_template('timeout.html')
 
 # this endpoint stopped updating in april of 2025?
