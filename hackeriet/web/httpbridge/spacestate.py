@@ -14,8 +14,8 @@ class SpaceState:
     # enums
     OPEN = "OPEN"
     CLOSED = "closed"
-    UNKOWN = "unkown"
-    def __init__(self, initial_state="unkown", topic="_"):
+    UNKOWN = "unknown"
+    def __init__(self, initial_state="unknown", topic="_"):
         self._state = initial_state
         self._lastupdate = int(time.time())
         self.update_isopen()

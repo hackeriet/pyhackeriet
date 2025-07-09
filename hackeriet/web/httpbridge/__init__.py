@@ -6,6 +6,7 @@ from hackeriet.mqtt import MQTT
 import nacl, base64
 from nacl.public import PublicKey, SealedBox
 import json
+import os
 
 from flask import Flask, render_template, request, redirect, Response
 app = Flask(__name__)
