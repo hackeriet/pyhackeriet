@@ -11,7 +11,7 @@ import os
 from flask import Flask, render_template, request, redirect, Response
 app = Flask(__name__)
 
-from spacestate import SpaceState
+from .spacestate import SpaceState
 
 space_state = SpaceState()
 
