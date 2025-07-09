@@ -73,18 +73,26 @@ def hello():
         addr = request.headers['X-Forwarded-For']
     
     timeout = 60*30 # 30 minutes old pages will be ignored
-    timestamp = int(request.form['timestamp'] or 0)
 
     if request.method == 'POST':
+        timestamp = int(request.form['timestamp'] or 0)
         if timestamp < time.time() - timeout:
-            return render_template('timeout.html')
+            return redirect('/timeout', code=303)
         person = request.form['person'] or ''
         mqtt("hackeriet/ding", "%s <%s>" % (person, encrypt(bytes(addr,"ascii"))))
-        return render_template('knocked.html')
+        return redirect('/knocked', code=303)
     else:
         response = render_template('index.html', space_state=space_state.get_state(), time=int(time.time()))
         response.headers['Refresh'] = timeout
         return response
+
+@app.route("/knocked", methods=["GET"])
+def knocked():
+    return render_template('knocked.html')
+
+@app.route("/timeout", methods=["GET"])
+def knocked():
+    return render_template('timeout.html')
 
 # this endpoint stopped updating in april of 2025?
 # TODO: fix this
