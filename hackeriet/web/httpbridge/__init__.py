@@ -7,7 +7,7 @@ import nacl, base64
 from nacl.public import PublicKey, SealedBox
 import json
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, Response
 app = Flask(__name__)
 
 from spacestate import SpaceState
@@ -82,7 +82,7 @@ def hello():
         mqtt("hackeriet/ding", "%s <%s>" % (person, encrypt(bytes(addr,"ascii"))))
         return redirect('/knocked', code=303)
     else:
-        response = render_template('index.html', space_state=space_state.get_state(), time=int(time.time()))
+        response = Response(render_template('index.html', space_state=space_state.get_state(), time=int(time.time())))
         response.headers['Refresh'] = timeout
         return response
 
