@@ -18,6 +18,7 @@ setup(
       'pynacl',
       'sqlalchemy',
       'stripe',
+      'matrix_client',
     ],
     entry_points = {
        'console_scripts': [
