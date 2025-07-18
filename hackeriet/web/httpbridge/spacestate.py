@@ -24,7 +24,7 @@ class SpaceState:
     # method to be called through MQTT
     def mqtt_listener(self, mosq, obj, msg):
         message = msg.payload.decode()
-        space_state.set_state(message)
+        self.set_state(message)
     
     # methods for updating the internal states
     def update_isopen(self):
