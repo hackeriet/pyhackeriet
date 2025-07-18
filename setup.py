@@ -11,9 +11,13 @@ setup(
     scripts=["bin/"+a for a in os.listdir("bin")],
     include_package_data=True,
     install_requires=[
+      'flask',
       'paho-mqtt',
+      'psycopg2',
       'pychromecast',
-      'flask'
+      'pynacl',
+      'sqlalchemy',
+      'stripe',
     ],
     entry_points = {
        'console_scripts': [

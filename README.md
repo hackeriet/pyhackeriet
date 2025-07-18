@@ -6,6 +6,8 @@ This package contains tools to open doors and dispense sodas at Hackeriet (and m
 
     pip3 install git+https://github.com/hackeriet/pyhackeriet.git --upgrade
 
+When upgrading an existing install already made from VCS, either force the upgrade or uninstall `pyhackeriet` prior.
+
 Environment variables required for running are detailed in the systemd service files.
 
 ## Card reader prerequisites 
