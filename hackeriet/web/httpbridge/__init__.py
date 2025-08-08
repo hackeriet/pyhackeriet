@@ -80,7 +80,7 @@ def hello():
         if timestamp < time.time() - timeout:
             return redirect('/timeout', code=303)
         person = request.form['person'] or ''
-        mqtt("hackeriet/ding", "%s <%s>" % (person, encrypt(bytes(addr,"ascii"))))
+        mqtt("hackeriet/ding", "%s" % (person))
         return redirect('/knocked', code=303)
     else:
         response = Response(render_template('index.html', space_state=space_state.get_state(), time=int(time.time())))
