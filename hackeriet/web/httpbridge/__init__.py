@@ -75,11 +75,13 @@ def hello():
     
     timeout = 60*30 # 30 minutes old pages will be ignored
 
+    knocker = request.args.get('p', default="", type=str)
+
     if request.method == 'POST':
         timestamp = int(request.form['timestamp'] or 0)
         if timestamp < time.time() - timeout:
             return redirect('/timeout', code=303)
-        person = request.form['person'] or ''
+        person = request.form['person'] or knocker
         mqtt("hackeriet/ding", "%s" % (person))
         return redirect('/knocked', code=303)
     else:
@@ -95,16 +97,45 @@ def knocked():
 def timeout():
     return render_template('timeout.html')
 
-# this endpoint stopped updating in april of 2025?
-# TODO: fix this
 
 @app.route("/spaceapi.json")
 def spaceapi():
-  return render_template(
-    'spaceapi.json',
-    space_state=space_state.get_state(),
-    is_open=space_state.is_open(),
-    lastupdate=space_state.get_lastupdate_time())
+    """ just render whole spaceapi here, return dict that automagically is json"""
+    state = space_state.get_state()
+    is_open = True if space_state.is_open() else False
+    lastupdate = space_state.get_lastupdate_time()
+    api = {
+           "space" : "Hackeriet",
+           "contact" : {
+              "mastodon" : "@hackeriet@chaos.social",
+              "email" : "styret@__SOPPELPOST__hackeriet.no",
+              "irc" : "irc://irc.libera.chat/#oslohackerspace"
+           },
+           "logo" : "https://hackeriet.no/comotion-sjn-transparent-1.2.svg",
+           "url" : "https://hackeriet.no",
+           "state" : {
+              "message" : f"The space is {state}.",
+              "open" : is_open,
+              "lastchange" : lastupdate
+           },
+           "location" : {
+              "lat" : 59.919293,
+              "lon" : 10.753475,
+              "address" : "Hausmania, Hausmannsgate 34, 0182 Oslo, Norway",
+              "timezone" : "Europe/Oslo",
+              "country_code" : "NO",
+              "hint" : "Go in main hausmania door, ring our doorbell at https://door.hackeriet.no/"
+           },
+           "api_compatibility" : ["14","15"],
+           "feeds" : {
+              "blog" : {
+                 "type" : "rss",
+                 "url" : "http://blog.hackeriet.no/feed.xml"
+              }
+           }
+        }
+    return api
+
 
 def main():
     #app.debug = True
